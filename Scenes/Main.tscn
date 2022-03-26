@@ -1,0 +1,309 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://Resources/fonts/FONT_8BITWONDER_NORMAL.tres" type="DynamicFont" id=1]
+[ext_resource path="res://Resources/fonts/FONT_UpheavalPro.tres" type="DynamicFont" id=2]
+[ext_resource path="res://Assets/ui/ui_main.png" type="Texture" id=3]
+[ext_resource path="res://Resources/styles/8BITWONDER_RUS_STYLE.tres" type="StyleBox" id=4]
+[ext_resource path="res://Scenes/ui/ItemSlot.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Scripts/nodes/Main.gd" type="Script" id=9]
+[ext_resource path="res://Scripts/nodes/TextLog.gd" type="Script" id=11]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform bool apply = true;
+uniform float amount = 1.0;
+uniform sampler2D offset_texture : hint_white;
+
+void fragment() {
+	vec4 texture_color = texture(SCREEN_TEXTURE, SCREEN_UV);
+	vec4 color = texture_color;
+	
+	if (apply == true) {
+		float adjusted_amount = amount * texture(offset_texture, SCREEN_UV).r / 100.0;
+		color.r = texture(SCREEN_TEXTURE, vec2(SCREEN_UV.x + adjusted_amount, SCREEN_UV.y)).r;
+		color.g = texture(SCREEN_TEXTURE, SCREEN_UV).g;
+		color.b = texture(SCREEN_TEXTURE, vec2(SCREEN_UV.x - adjusted_amount, SCREEN_UV.y)).b;
+	}
+	COLOR = color;
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/apply = true
+shader_param/amount = 0.1
+
+[node name="Main" type="Node2D"]
+z_index = 1
+script = ExtResource( 9 )
+
+[node name="GUI" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="GUI_LAYER_SHADER" type="CanvasLayer" parent="GUI"]
+layer = 3
+
+[node name="Chromatic_Aberration" type="ColorRect" parent="GUI/GUI_LAYER_SHADER"]
+material = SubResource( 2 )
+margin_right = 512.0
+margin_bottom = 288.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GUI_LAYER_INVENTORY" type="CanvasLayer" parent="GUI"]
+layer = 2
+
+[node name="Inventory" type="GridContainer" parent="GUI/GUI_LAYER_INVENTORY"]
+visible = false
+margin_left = 144.0
+margin_top = 272.0
+margin_right = 369.0
+margin_bottom = 288.0
+mouse_filter = 2
+custom_constants/hseparation = 3
+columns = 12
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ItemSlot1" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 16.0
+margin_bottom = 16.0
+
+[node name="ItemSlot2" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 19.0
+margin_right = 35.0
+margin_bottom = 16.0
+
+[node name="ItemSlot3" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 38.0
+margin_right = 54.0
+margin_bottom = 16.0
+
+[node name="ItemSlot4" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 57.0
+margin_right = 73.0
+margin_bottom = 16.0
+
+[node name="ItemSlot5" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 76.0
+margin_right = 92.0
+margin_bottom = 16.0
+
+[node name="ItemSlot6" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 95.0
+margin_right = 111.0
+margin_bottom = 16.0
+
+[node name="ItemSlot7" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 114.0
+margin_right = 130.0
+margin_bottom = 16.0
+
+[node name="ItemSlot8" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 133.0
+margin_right = 149.0
+margin_bottom = 16.0
+
+[node name="ItemSlot9" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 152.0
+margin_right = 168.0
+margin_bottom = 16.0
+
+[node name="ItemSlot10" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 171.0
+margin_right = 187.0
+margin_bottom = 16.0
+
+[node name="ItemSlot11" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 190.0
+margin_right = 206.0
+margin_bottom = 16.0
+
+[node name="ItemSlot12" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 209.0
+margin_right = 225.0
+margin_bottom = 16.0
+
+[node name="GUI_LAYER_MAIN" type="CanvasLayer" parent="GUI"]
+
+[node name="UI_MAIN" type="TextureRect" parent="GUI/GUI_LAYER_MAIN"]
+margin_right = 512.0
+margin_bottom = 288.0
+texture = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="UI_HEALTH" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
+margin_left = 32.0
+margin_top = 272.0
+margin_right = 48.0
+margin_bottom = 288.0
+rect_min_size = Vector2( 16, 16 )
+custom_fonts/font = ExtResource( 2 )
+text = "0"
+align = 1
+valign = 1
+autowrap = true
+clip_text = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="UI_SHIELD" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
+margin_left = 64.0
+margin_top = 272.0
+margin_right = 80.0
+margin_bottom = 288.0
+rect_min_size = Vector2( 16, 16 )
+custom_fonts/font = ExtResource( 2 )
+text = "0"
+align = 1
+valign = 1
+autowrap = true
+clip_text = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="UI_AMMO" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
+margin_left = 432.0
+margin_top = 272.0
+margin_right = 448.0
+margin_bottom = 288.0
+rect_min_size = Vector2( 16, 16 )
+custom_fonts/font = ExtResource( 2 )
+text = "0"
+align = 1
+valign = 1
+autowrap = true
+clip_text = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="UI_TURN" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
+margin_left = 464.0
+margin_top = 272.0
+margin_right = 480.0
+margin_bottom = 288.0
+rect_min_size = Vector2( 16, 16 )
+custom_fonts/font = ExtResource( 2 )
+text = "0"
+align = 1
+valign = 1
+autowrap = true
+clip_text = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Control" type="Control" parent="."]
+visible = false
+margin_right = 480.0
+margin_bottom = 272.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextLog" type="RichTextLabel" parent="Control"]
+margin_top = 128.0
+margin_right = 80.0
+margin_bottom = 257.0
+custom_styles/normal = ExtResource( 4 )
+custom_fonts/normal_font = ExtResource( 1 )
+bbcode_enabled = true
+meta_underlined = false
+text = "
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"
+scroll_active = false
+script = ExtResource( 11 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Header" type="RichTextLabel" parent="Control"]
+margin_right = 480.0
+margin_bottom = 16.0
+custom_styles/normal = ExtResource( 4 )
+custom_fonts/normal_font = ExtResource( 1 )
+tab_size = 1
+text = "header"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Footer" type="RichTextLabel" parent="Control"]
+margin_left = 16.0
+margin_top = 256.0
+margin_right = 496.0
+margin_bottom = 272.0
+custom_styles/normal = ExtResource( 4 )
+custom_fonts/normal_font = ExtResource( 1 )
+tab_size = 1
+text = "footer"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PlainTextLog" type="Label" parent="Control"]
+margin_top = 16.0
+margin_right = 80.0
+margin_bottom = 128.0
+custom_styles/normal = ExtResource( 4 )
+custom_fonts/font = ExtResource( 2 )
+text = "пришла пора купить собаку и продать кота, выкинув его за лапу"
+autowrap = true
+max_lines_visible = 9
+__meta__ = {
+"_edit_use_anchors_": false
+}
