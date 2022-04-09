@@ -1,6 +1,6 @@
 extends Node2D
 
-const grid_size = 16
+const grid_size = 8
 
 var level_queue
 
@@ -30,7 +30,7 @@ signal on_mob_action_finished
 func _ready():
 	level_load("Level_Empty")
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
-	level_mob_spawn("Player",Vector2(7,6))
+	level_mob_spawn("Player",Vector2(12,9))
 #	level_mob_spawn("Grunt",Vector2(8,9))
 #	level_mob_spawn("Grunt",Vector2(6,3))
 #	level_mob_spawn("Grunt",Vector2(7,5))
@@ -83,8 +83,8 @@ func mob_action_move(cellA:Vector2,cellB:Vector2):
 	#MOB MOVEMENT | START
 	cellA = Vector2((cellA.x)*grid_size,(cellA.y)*grid_size)
 	cellB = Vector2((cellB.x)*grid_size,(cellB.y)*grid_size)
-	if cellA - cellB == Vector2(-16,0): moving_entity.animation_flip(false,false)
-	if cellA - cellB == Vector2(16,0): moving_entity.animation_flip(true,false)
+	if cellA - cellB == Vector2(-grid_size,0): moving_entity.animation_flip(false,false)
+	if cellA - cellB == Vector2(grid_size,0): moving_entity.animation_flip(true,false)
 	moving_entity.action_move_tween(cellA,cellB)
 	
 	#MOB MOVEMENT | FINISH
@@ -97,8 +97,8 @@ func mob_action_attack(cellA:Vector2,cellB:Vector2):
 	#MOB ATTACK | START
 	cellA = Vector2((cellA.x)*grid_size,(cellA.y)*grid_size)
 	cellB = Vector2((cellB.x)*grid_size,(cellB.y)*grid_size)
-	if cellA - cellB == Vector2(-16,0): moving_entity.animation_flip(false,false)
-	if cellA - cellB == Vector2(16,0): moving_entity.animation_flip(true,false)
+	if cellA - cellB == Vector2(-grid_size,0): moving_entity.animation_flip(false,false)
+	if cellA - cellB == Vector2(grid_size,0): moving_entity.animation_flip(true,false)
 
 	moving_entity.z_index += 1
 	moving_entity.animation_change(Global.ANIMATIONS.MELEE_ATTACK,true,false)
@@ -123,13 +123,13 @@ func calculate_melee_damage(is_attacker,is_target):
 			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
 
 func level_load(level_name:String):
-	var level_data = load("res://Scenes/levels/%s.tscn" %level_name)
+	var level_data = load("res://Scenes/%s.tscn" %level_name)
 	var level_instance = level_data.instance()
 	add_child(level_instance)
 	pass
 
 func level_mob_spawn(mob_name,mob_position:Vector2):
-	var mob_data = load("res://Scenes/mobs/%s.tscn" %mob_name)
+	var mob_data = load("res://Mobs/%s.tscn" %mob_name)
 	var mob_instance = mob_data.instance()
 	Global.LEVEL_LAYER_LOGIC.add_child(mob_instance)
 	mob_instance.set_global_position(Vector2((mob_position.x)*grid_size,(mob_position.y)*grid_size))

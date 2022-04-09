@@ -2,9 +2,9 @@
 
 [ext_resource path="res://Resources/fonts/FONT_8BITWONDER_NORMAL.tres" type="DynamicFont" id=1]
 [ext_resource path="res://Resources/fonts/FONT_UpheavalPro.tres" type="DynamicFont" id=2]
-[ext_resource path="res://Assets/ui/ui_main.png" type="Texture" id=3]
+[ext_resource path="res://Assets/ui_main.png" type="Texture" id=3]
 [ext_resource path="res://Resources/styles/8BITWONDER_RUS_STYLE.tres" type="StyleBox" id=4]
-[ext_resource path="res://Scenes/ui/ItemSlot.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Ui/ItemSlot.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scripts/nodes/Main.gd" type="Script" id=9]
 [ext_resource path="res://Scripts/nodes/TextLog.gd" type="Script" id=11]
 
@@ -47,9 +47,6 @@ layer = 3
 material = SubResource( 2 )
 margin_right = 512.0
 margin_bottom = 288.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="GUI_LAYER_INVENTORY" type="CanvasLayer" parent="GUI"]
 layer = 2
@@ -156,9 +153,6 @@ margin_bottom = 16.0
 margin_right = 512.0
 margin_bottom = 288.0
 texture = ExtResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="UI_HEALTH" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
 margin_left = 32.0
@@ -172,9 +166,6 @@ align = 1
 valign = 1
 autowrap = true
 clip_text = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="UI_SHIELD" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
 margin_left = 64.0
@@ -188,9 +179,6 @@ align = 1
 valign = 1
 autowrap = true
 clip_text = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="UI_AMMO" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
 margin_left = 432.0
@@ -236,8 +224,8 @@ __meta__ = {
 margin_top = 128.0
 margin_right = 80.0
 margin_bottom = 257.0
-custom_styles/normal = ExtResource( 4 )
 custom_fonts/normal_font = ExtResource( 1 )
+custom_styles/normal = ExtResource( 4 )
 bbcode_enabled = true
 meta_underlined = false
 text = "
@@ -274,8 +262,8 @@ __meta__ = {
 [node name="Header" type="RichTextLabel" parent="Control"]
 margin_right = 480.0
 margin_bottom = 16.0
-custom_styles/normal = ExtResource( 4 )
 custom_fonts/normal_font = ExtResource( 1 )
+custom_styles/normal = ExtResource( 4 )
 tab_size = 1
 text = "header"
 __meta__ = {
@@ -287,8 +275,8 @@ margin_left = 16.0
 margin_top = 256.0
 margin_right = 496.0
 margin_bottom = 272.0
-custom_styles/normal = ExtResource( 4 )
 custom_fonts/normal_font = ExtResource( 1 )
+custom_styles/normal = ExtResource( 4 )
 tab_size = 1
 text = "footer"
 __meta__ = {
@@ -299,8 +287,8 @@ __meta__ = {
 margin_top = 16.0
 margin_right = 80.0
 margin_bottom = 128.0
-custom_styles/normal = ExtResource( 4 )
 custom_fonts/font = ExtResource( 2 )
+custom_styles/normal = ExtResource( 4 )
 text = "пришла пора купить собаку и продать кота, выкинув его за лапу"
 autowrap = true
 max_lines_visible = 9

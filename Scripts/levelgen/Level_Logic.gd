@@ -155,11 +155,13 @@ func bsp_generator():
 	bsp_generator_get_rooms()
 
 	# SET TEXTURES FOR TILES
-	tilemap_texture_set_fixed(TEXTURES.ATLAS_DOOR,TILES.LOGIC_DOOR,0)
-	tilemap_texture_set_random(TEXTURES.ATLAS_WALL,TILES.LOGIC_VOID)
-	tilemap_texture_set_random(TEXTURES.ATLAS_FLOOR,TILES.LOGIC_FLOOR)
-	tilemap_texture_set_random(TEXTURES.ATLAS_WALL,TILES.LOGIC_WALL)
-	Global.LEVEL_LAYER_BASE.update_bitmask_region()
+#	tilemap_texture_set_fixed(TEXTURES.ATLAS_DOOR,TILES.LOGIC_DOOR,0)
+#	tilemap_texture_set_random(TEXTURES.ATLAS_WALL,TILES.LOGIC_VOID)
+#	tilemap_texture_set_random(TEXTURES.ATLAS_FLOOR,TILES.LOGIC_FLOOR)
+#	tilemap_texture_set_random(TEXTURES.ATLAS_WALL,TILES.LOGIC_WALL)
+#	Global.LEVEL_LAYER_BASE.update_bitmask_region()
+
+#LOGIC_TILES.TILE_EMPTY = Global.LEVEL_LAYER_LOGIC.get_tileset().find_tile_by_name("TILE_EMPTY")
 
 func bsp_generator_fill():
 	for x in range(0, map_width):

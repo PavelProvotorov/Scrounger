@@ -14,12 +14,11 @@ const inputList = {
 	"ui_right": Vector2.RIGHT
 	}
 const ANIMATIONS= {
-	MELEE_ATTACK = "MELEE_ATTACK",
-	MELEE_IDLE  = "MELEE_IDLE"
+	IDLE = "IDLE"
 }
 
-const grid_size = 16
-const tween_speed = 6
+const grid_size = 8
+const tween_speed = 8
 
 var turn_count:int
 
@@ -51,8 +50,8 @@ func _ready():
 	NODE_CAMERA_2D.limit_bottom = (map_limits.end.y * map_cellsize.y)
 	
 	#PREPARE STARTING ANIMATIONS
-	NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.MELEE_IDLE)
-	NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(ANIMATIONS.MELEE_IDLE)))
+	NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.IDLE)
+	NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(ANIMATIONS.IDLE)))
 	pass
 
 func _unhandled_input(event):
@@ -72,8 +71,8 @@ func _move_player(direction):
 	NODE_RAYCAST.force_raycast_update()
 	
 	if NODE_RAYCAST.is_colliding() == false:
-		if cellA - cellB == Vector2(-16,0): animation_flip(false,false)
-		if cellA - cellB == Vector2(16,0): animation_flip(true,false)
+		if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
+		if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 		NODE_MAIN.action_move_tween(cellA,cellB)
 		yield(NODE_TWEEN,"tween_all_completed")
 		check_turn()
@@ -81,8 +80,8 @@ func _move_player(direction):
 	elif NODE_RAYCAST.is_colliding() == true:
 		var target_entity = NODE_RAYCAST.get_collider()
 		if NODE_RAYCAST.get_collider().is_in_group(Global.GROUPS.HOSTILE) == true:
-			if cellA - cellB == Vector2(-16,0): animation_flip(false,false)
-			if cellA - cellB == Vector2(16,0): animation_flip(true,false)
+			if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
+			if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 			NODE_MAIN.z_index += 1
 			NODE_MAIN.animation_change(ANIMATIONS.MELEE_ATTACK,true,false)
 			NODE_MAIN.calculate_melee_damage(self,target_entity)
