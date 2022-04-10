@@ -7,12 +7,11 @@ onready var NODE_TWEEN = $Tween
 onready var NODE_MAIN = self
 
 const ANIMATIONS= {
-	MELEE_ATTACK = "MELEE_ATTACK",
-	MELEE_IDLE  = "MELEE_IDLE"
+	IDLE = "IDLE"
 }
 
-const tween_speed = 5
-const grid_size = 16
+const tween_speed = 8
+const grid_size = 8
 
 var AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
 var AI_class = Global.AI_CLASS_LIST.CLASS_MELEE
@@ -30,8 +29,8 @@ var stat_ammo:int = 0
 #---------------------------------------------------------------------------------------
 func _ready():
 	randomize()
-	NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.MELEE_IDLE)
-	NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(ANIMATIONS.MELEE_IDLE)))
+	NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.IDLE)
+	NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(ANIMATIONS.IDLE)))
 	pass
 
 func animation_flip(is_flip_h:bool, is_flip_v:bool):
@@ -56,10 +55,10 @@ func action_move_tween(start,finish):
 	pass
 
 func action_attack_tween(start,finish):
-	NODE_TWEEN.interpolate_property(self,"position",start,finish,0.1)
+	NODE_TWEEN.interpolate_property(self,"position",start,finish,0.75/tween_speed)
 	NODE_TWEEN.start()
 	yield(NODE_TWEEN,"tween_completed")
-	NODE_TWEEN.interpolate_property(self,"position",finish,start,0.3)
+	NODE_TWEEN.interpolate_property(self,"position",finish,start,1.0/tween_speed)
 	NODE_TWEEN.start()
 	yield(NODE_TWEEN,"tween_completed")
 	NODE_TWEEN.emit_signal("tween_all_completed")

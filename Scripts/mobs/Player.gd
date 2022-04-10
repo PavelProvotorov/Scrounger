@@ -30,7 +30,7 @@ var stat_ambition:int = 3
 
 var stat_shield:int = 0
 var stat_health:int = 10
-var stat_speed:int = 3
+var stat_speed:int = 1
 var stat_ammo:int = 0
 
 # READY
@@ -83,11 +83,11 @@ func _move_player(direction):
 			if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
 			if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 			NODE_MAIN.z_index += 1
-			NODE_MAIN.animation_change(ANIMATIONS.MELEE_ATTACK,true,false)
+#			NODE_MAIN.animation_change(ANIMATIONS.MELEE_ATTACK,true,false)
 			NODE_MAIN.calculate_melee_damage(self,target_entity)
 			NODE_MAIN.action_attack_tween(cellA,cellB)
 			yield(NODE_TWEEN,"tween_all_completed")
-			NODE_MAIN.animation_change(ANIMATIONS.MELEE_IDLE,true,false)
+#			NODE_MAIN.animation_change(ANIMATIONS.MELEE_IDLE,true,false)
 			NODE_MAIN.z_index -= 1
 			check_turn()
 		elif NODE_RAYCAST.get_collider().is_in_group(Global.GROUPS.HOSTILE) == false:
@@ -137,10 +137,10 @@ func action_move_tween(start,finish):
 	NODE_TWEEN.emit_signal("tween_all_completed")
 
 func action_attack_tween(start,finish):
-	NODE_TWEEN.interpolate_property(self,"position",start,finish,0.1)
+	NODE_TWEEN.interpolate_property(self,"position",start,finish,0.5/tween_speed)
 	NODE_TWEEN.start()
 	yield(NODE_TWEEN,"tween_completed")
-	NODE_TWEEN.interpolate_property(self,"position",finish,start,0.3)
+	NODE_TWEEN.interpolate_property(self,"position",finish,start,1.0/tween_speed)
 	NODE_TWEEN.start()
 	yield(NODE_TWEEN,"tween_completed")
 	NODE_TWEEN.emit_signal("tween_all_completed")

@@ -20,7 +20,6 @@ var NODE_PLAYER
 #---------------------------------------------------------------------------------------
 var LEVEL_LAYER_LOGIC
 var LEVEL_LAYER_BASE
-var LEVEL_LAYER_WALL
 var LEVEL_LAYER_DECO
 var LEVEL_QUEUE
 var LEVEL

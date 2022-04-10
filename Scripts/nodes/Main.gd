@@ -31,10 +31,10 @@ func _ready():
 	level_load("Level_Empty")
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
 	level_mob_spawn("Player",Vector2(12,9))
-#	level_mob_spawn("Grunt",Vector2(8,9))
-#	level_mob_spawn("Grunt",Vector2(6,3))
-#	level_mob_spawn("Grunt",Vector2(7,5))
-#	level_mob_spawn("Grunt",Vector2(10,9))
+	level_mob_spawn("Grunt",Vector2(13,9))
+	level_mob_spawn("Grunt",Vector2(6,3))
+	level_mob_spawn("Grunt",Vector2(7,5))
+	level_mob_spawn("Grunt",Vector2(10,9))
 	Global.LEVEL_LAYER_LOGIC.astar_build()
 	
 	target_entity = Global.LEVEL_LAYER_LOGIC.get_node("Player")
@@ -48,7 +48,7 @@ func manager_mob():
 	print("THE QUEUE SIZE IS: %s" %level_queue.size())
 	for i in (level_queue.size()):
 		print(i)
-		yield(get_tree().create_timer(0.1),"timeout")
+#		yield(get_tree().create_timer(0.1),"timeout")
 		moving_entity = Global.LEVEL_LAYER_LOGIC.get_node(level_queue[i][1])
 #		print("Currently Moving: %s" %moving_entity.name)
 		print("Currently Moving: %s" %moving_entity)
@@ -101,7 +101,7 @@ func mob_action_attack(cellA:Vector2,cellB:Vector2):
 	if cellA - cellB == Vector2(grid_size,0): moving_entity.animation_flip(true,false)
 
 	moving_entity.z_index += 1
-	moving_entity.animation_change(Global.ANIMATIONS.MELEE_ATTACK,true,false)
+#	moving_entity.animation_change(Global.ANIMATIONS.MELEE_ATTACK,true,false)
 	calculate_melee_damage(moving_entity,target_entity)
 	moving_entity.action_attack_tween(cellA,cellB)
 	
@@ -109,7 +109,7 @@ func mob_action_attack(cellA:Vector2,cellB:Vector2):
 	yield(moving_entity.get_node("Tween"),"tween_all_completed")
 	
 	moving_entity.z_index -= 1
-	moving_entity.animation_change(Global.ANIMATIONS.MELEE_IDLE,true,true)
+#	moving_entity.animation_change(Global.ANIMATIONS.MELEE_IDLE,true,true)
 	
 	#MOB ATTACK | END
 	emit_signal("on_mob_action_finished")
