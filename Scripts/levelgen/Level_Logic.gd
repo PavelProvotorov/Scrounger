@@ -5,6 +5,7 @@ var tilemap_cells_radius:PoolVector2Array
 var tilemap_astar_cells:Array
 var tilemap_scan_node
 
+var tile_size = 8
 var map_width = 32
 var map_height = 18
 var min_width = 3
@@ -18,7 +19,13 @@ const DIRECTIONS = {
 	DOWN = Vector2.DOWN,
 	LEFT = Vector2.LEFT,
 	RIGHT = Vector2.RIGHT
-	}
+}
+
+enum TILESET_FOG {
+	TILE_FULL = 0,
+	TILE_HALF = 1,
+	TILE_NONE = 2
+}
 
 enum TILESET_BASE {
 	TILE_FLOOR = 0,
@@ -130,6 +137,46 @@ func uuid(point):
 	var b = point.y
 	return (a + b) * (a + b + 1) / 2 + b
 
+# FOG OF WAR
+#---------------------------------------------------------------------------------------
+func fog_fill():
+	for x in range(0, map_width):
+		for y in range(0, map_height):
+			Global.LAYER_FOG.set_cell(x, y, TILESET_FOG.TILE_FULL)
+	pass
+
+func fog_update():
+	var player = Global.LEVEL_LAYER_LOGIC.get_node("Player")
+	var player_position = Global.LEVEL_LAYER_LOGIC.world_to_map(player.get_global_position())
+	var player_position_center = tile_to_pixel_center(player_position.x, player_position.y)
+	
+	var test_size = 2
+	var rect_start = Vector2(player_position.x - test_size, player_position.y - test_size)
+	var rect_close = Vector2(player_position.x + test_size, player_position.y + test_size)
+	var rect_width = ((rect_close.x - rect_start.x)+1)
+	var rect_height = ((rect_close.y - rect_start.y)+1)
+	var rect = Rect2(rect_start,rect_close)
+	
+	fog_fill()
+	
+	var cell_array:Array
+	for x in range(0, rect_width):
+		for y in range(0, rect_height):
+			var cell = Vector2((rect_start.x + x),(rect_start.y + y))
+			cell_array.append(cell)
+	
+	for cell in cell_array:
+		player.raycast_cast_to(player_position,cell)
+		if player.NODE_RAYCAST.is_colliding() == true:
+			var raycast_collider = player.NODE_RAYCAST.get_collision_point()
+			var raycast_collider_position = self.world_to_map(raycast_collider)
+			Global.LAYER_FOG.set_cell(raycast_collider_position.x, raycast_collider_position.y, TILESET_FOG.TILE_NONE)
+		if player.NODE_RAYCAST.is_colliding() == false:
+			Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
+
+func tile_to_pixel_center(x,y):
+	return Vector2((x+0.5)*tile_size,(y+0.5)*tile_size)
+
 # BSP GENERATOR
 #---------------------------------------------------------------------------------------
 func bsp_generator():
@@ -137,23 +184,23 @@ func bsp_generator():
 	
 	# PREPARE TILEMAP
 	bsp_generator_fill()
-#	bsp_generator_add_border()
-#	bsp_generator_subdivide(1, 1, map_width - 2, map_height - 2)
+	bsp_generator_add_border()
+	bsp_generator_subdivide(1, 1, map_width - 2, map_height - 2)
 	
 	# REMOVE REDUNDANT TILES
-#	bsp_generator_clear_dead_doors()
-#	bsp_generator_clear_dead_walls()
-#	bsp_generator_clear_dead_doors()
-#	bsp_generator_clear_dead_walls()
-#	bsp_generator_get_rooms()
+	bsp_generator_clear_dead_doors()
+	bsp_generator_clear_dead_walls()
+	bsp_generator_clear_dead_doors()
+	bsp_generator_clear_dead_walls()
+	bsp_generator_get_rooms()
 	
 	# FILL ONEWAY ROOMS
-#	bsp_generator_fill_oneway_rooms()
-#	bsp_generator_get_rooms()
+	bsp_generator_fill_oneway_rooms()
+	bsp_generator_get_rooms()
 	
 	# FILL MIDDLE ROOMS
-#	bsp_generator_fill_middle_rooms()
-#	bsp_generator_get_rooms()
+	bsp_generator_fill_middle_rooms()
+	bsp_generator_get_rooms()
 
 	# SET TEXTURES FOR TILES
 	tilemap_texture_set_random(TILESET_BASE.TILE_DOOR,TILESET_LOGIC.TILE_DOOR)

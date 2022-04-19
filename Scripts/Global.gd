@@ -18,6 +18,7 @@ var NODE_PLAYER
 
 # LOADED LEVEL VARIABLES
 #---------------------------------------------------------------------------------------
+var LAYER_FOG
 var LEVEL_LAYER_LOGIC
 var LEVEL_LAYER_BASE
 var LEVEL_LAYER_DECO

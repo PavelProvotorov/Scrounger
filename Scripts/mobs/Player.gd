@@ -17,7 +17,7 @@ const ANIMATIONS= {
 	IDLE = "IDLE"
 }
 
-const grid_size = 8
+const tile_size = 8
 const tween_speed = 8
 
 var turn_count:int
@@ -32,6 +32,9 @@ var stat_shield:int = 0
 var stat_health:int = 10
 var stat_speed:int = 1
 var stat_ammo:int = 0
+
+var hit_pos
+var vis_color = Color(.867, .91, .247, 0.1)
 
 # READY
 #---------------------------------------------------------------------------------------
@@ -66,25 +69,38 @@ func _unhandled_input(event):
 
 func _move_player(direction):
 	var cellA = NODE_MAIN.position
-	var cellB = NODE_MAIN.position + (inputList[direction] * grid_size)
-	NODE_RAYCAST.cast_to = (inputList[direction] * grid_size)
+	var cellB = NODE_MAIN.position + (inputList[direction] * tile_size)
+	NODE_RAYCAST.cast_to = (inputList[direction] * tile_size)
 	NODE_RAYCAST.force_raycast_update()
 	
 	if NODE_RAYCAST.is_colliding() == false:
-		if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
-		if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
+		if cellA - cellB == Vector2(-tile_size,0): animation_flip(false,false)
+		if cellA - cellB == Vector2(tile_size,0): animation_flip(true,false)
 		NODE_MAIN.action_move_tween(cellA,cellB)
 		yield(NODE_TWEEN,"tween_all_completed")
+		Global.LEVEL_LAYER_LOGIC.fog_update()
 		check_turn()
 
-	elif NODE_RAYCAST.is_colliding() == true:
-		var target_entity = NODE_RAYCAST.get_collider()
-		if NODE_RAYCAST.get_collider().is_in_group(Global.GROUPS.HOSTILE) == true:
-			if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
-			if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
+	if NODE_RAYCAST.is_colliding() == true:
+		var collider = NODE_RAYCAST.get_collider()
+		print(collider)
+		if NODE_RAYCAST.get_collider() == Global.LEVEL_LAYER_LOGIC:
+			var collider_cell = Vector2(cellB.x/8,cellB.y/8)
+			var collider_cell_id = Global.LEVEL_LAYER_LOGIC.get_cell(collider_cell.x,collider_cell.y)
+			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_WALL: pass
+			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_VOID: pass
+			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_DOOR:
+				Global.LEVEL_LAYER_LOGIC.set_cell(collider_cell.x,collider_cell.y,Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR)
+				NODE_MAIN.action_move_tween(cellA,cellB)
+				yield(NODE_TWEEN,"tween_all_completed")
+				Global.LEVEL_LAYER_LOGIC.fog_update()
+				check_turn()
+		elif NODE_RAYCAST.get_collider().is_in_group(Global.GROUPS.HOSTILE) == true:
+			if cellA - cellB == Vector2(-tile_size,0): animation_flip(false,false)
+			if cellA - cellB == Vector2(tile_size,0): animation_flip(true,false)
 			NODE_MAIN.z_index += 1
 #			NODE_MAIN.animation_change(ANIMATIONS.MELEE_ATTACK,true,false)
-			NODE_MAIN.calculate_melee_damage(self,target_entity)
+			NODE_MAIN.calculate_melee_damage(self,collider)
 			NODE_MAIN.action_attack_tween(cellA,cellB)
 			yield(NODE_TWEEN,"tween_all_completed")
 #			NODE_MAIN.animation_change(ANIMATIONS.MELEE_IDLE,true,false)
@@ -96,6 +112,11 @@ func _move_player(direction):
 			pass
 	else:
 		return
+
+func raycast_cast_to(cell_start,cell_finish):
+	var cell_cast_to = Vector2(((cell_finish.x-cell_start.x)*tile_size),((cell_finish.y-cell_start.y)*tile_size))
+	NODE_RAYCAST.cast_to = Vector2(cell_cast_to.x,cell_cast_to.y)
+	NODE_RAYCAST.force_raycast_update()
 
 func check_turn():
 	turn_count += 1
