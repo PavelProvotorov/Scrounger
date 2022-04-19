@@ -30,8 +30,8 @@ enum TILESET_FOG {
 enum TILESET_BASE {
 	TILE_FLOOR = 0,
 	TILE_WALL  = 1,
-	TILE_DOOR = 2,
-	TILE_EXIT = 3
+	TILE_DOOR_CLOSED = 2,
+	TILE_DOOR_OPEN = 3
 }
 
 enum TILESET_LOGIC {
@@ -203,7 +203,7 @@ func bsp_generator():
 	bsp_generator_get_rooms()
 
 	# SET TEXTURES FOR TILES
-	tilemap_texture_set_random(TILESET_BASE.TILE_DOOR,TILESET_LOGIC.TILE_DOOR)
+	tilemap_texture_set_random(TILESET_BASE.TILE_DOOR_CLOSED,TILESET_LOGIC.TILE_DOOR)
 	tilemap_texture_set_random(TILESET_BASE.TILE_WALL,TILESET_LOGIC.TILE_VOID)
 	tilemap_texture_set_random(TILESET_BASE.TILE_FLOOR,TILESET_LOGIC.TILE_FLOOR)
 	tilemap_texture_set_random(TILESET_BASE.TILE_WALL,TILESET_LOGIC.TILE_WALL)
@@ -409,15 +409,11 @@ func tilemap_texture_set_random(tile_base_id:int,tile_logic_id:int):
 		pass
 	pass
 
-func tilemap_texture_set_fixed(tile_base_id,tile_logic_id,id):
+func tilemap_texture_set_fixed(tile_base_id:int,tile_position:Vector2,id:int):
 	randomize()
-	var cell_array = self.get_used_cells_by_id(tile_logic_id)
 	var tile_array = util_atlas_get_tiles(tile_base_id,Global.LEVEL_LAYER_BASE)
-	for cell in cell_array:
-		var tile = tile_array[id]
-		Global.LEVEL_LAYER_BASE.set_cell(cell.x,cell.y,tile_base_id,false,false,false,tile)
-		pass
-	pass
+	var tile = tile_array[id]
+	Global.LEVEL_LAYER_BASE.set_cell(tile_position.x,tile_position.y,tile_base_id,false,false,false,tile)
 
 func tilemap_check_bottom_cell(x,y):
 	var cell_data = []

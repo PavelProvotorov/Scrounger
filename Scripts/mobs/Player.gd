@@ -77,6 +77,7 @@ func _move_player(direction):
 		if cellA - cellB == Vector2(-tile_size,0): animation_flip(false,false)
 		if cellA - cellB == Vector2(tile_size,0): animation_flip(true,false)
 		NODE_MAIN.action_move_tween(cellA,cellB)
+		$Sound.play()
 		yield(NODE_TWEEN,"tween_all_completed")
 		Global.LEVEL_LAYER_LOGIC.fog_update()
 		check_turn()
@@ -91,7 +92,9 @@ func _move_player(direction):
 			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_VOID: pass
 			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_DOOR:
 				Global.LEVEL_LAYER_LOGIC.set_cell(collider_cell.x,collider_cell.y,Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR)
+				Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
 				NODE_MAIN.action_move_tween(cellA,cellB)
+				$Sound.play()
 				yield(NODE_TWEEN,"tween_all_completed")
 				Global.LEVEL_LAYER_LOGIC.fog_update()
 				check_turn()

@@ -45,8 +45,8 @@ layer = 3
 
 [node name="Chromatic_Aberration" type="ColorRect" parent="GUI/GUI_LAYER_SHADER"]
 material = SubResource( 2 )
-margin_right = 512.0
-margin_bottom = 288.0
+margin_right = 256.0
+margin_bottom = 144.0
 
 [node name="GUI_LAYER_INVENTORY" type="CanvasLayer" parent="GUI"]
 layer = 2

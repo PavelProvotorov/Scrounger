@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/snd_move.mp3-c8e71b1867aaf19807e43feec797f9f4.mp3str"
+
+[deps]
+
+source_file="res://Sounds/snd_move.mp3"
+dest_files=[ "res://.import/snd_move.mp3-c8e71b1867aaf19807e43feec797f9f4.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0
