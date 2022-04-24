@@ -105,60 +105,19 @@ margin_left = 95.0
 margin_right = 111.0
 margin_bottom = 16.0
 
-[node name="ItemSlot7" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_left = 114.0
-margin_right = 130.0
-margin_bottom = 16.0
-
-[node name="ItemSlot8" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_left = 133.0
-margin_right = 149.0
-margin_bottom = 16.0
-
-[node name="ItemSlot9" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_left = 152.0
-margin_right = 168.0
-margin_bottom = 16.0
-
-[node name="ItemSlot10" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_left = 171.0
-margin_right = 187.0
-margin_bottom = 16.0
-
-[node name="ItemSlot11" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_left = 190.0
-margin_right = 206.0
-margin_bottom = 16.0
-
-[node name="ItemSlot12" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_left = 209.0
-margin_right = 225.0
-margin_bottom = 16.0
-
 [node name="GUI_LAYER_MAIN" type="CanvasLayer" parent="GUI"]
 
 [node name="UI_MAIN" type="TextureRect" parent="GUI/GUI_LAYER_MAIN"]
-margin_right = 512.0
-margin_bottom = 288.0
+visible = false
+margin_right = 256.0
+margin_bottom = 144.0
 texture = ExtResource( 3 )
 
 [node name="UI_HEALTH" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
 margin_left = 32.0
-margin_top = 272.0
+margin_top = 128.0
 margin_right = 48.0
-margin_bottom = 288.0
+margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
 text = "0"
@@ -168,10 +127,11 @@ autowrap = true
 clip_text = true
 
 [node name="UI_SHIELD" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-margin_left = 64.0
-margin_top = 272.0
-margin_right = 80.0
-margin_bottom = 288.0
+visible = false
+margin_left = 48.0
+margin_top = 128.0
+margin_right = 64.0
+margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
 text = "0"
@@ -181,10 +141,10 @@ autowrap = true
 clip_text = true
 
 [node name="UI_AMMO" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-margin_left = 432.0
-margin_top = 272.0
-margin_right = 448.0
-margin_bottom = 288.0
+margin_left = 208.0
+margin_top = 128.0
+margin_right = 224.0
+margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
 text = "0"
@@ -197,10 +157,11 @@ __meta__ = {
 }
 
 [node name="UI_TURN" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-margin_left = 464.0
-margin_top = 272.0
-margin_right = 480.0
-margin_bottom = 288.0
+visible = false
+margin_left = 192.0
+margin_top = 128.0
+margin_right = 208.0
+margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
 text = "0"

@@ -11,6 +11,7 @@ var map_height = 18
 var min_width = 3
 var stop_width = min_width * 2 + 1
 
+var rooms_vents_array = []
 var rooms_array = []
 var level = []
 
@@ -28,18 +29,25 @@ enum TILESET_FOG {
 }
 
 enum TILESET_BASE {
-	TILE_FLOOR = 0,
-	TILE_WALL  = 1,
+	TILE_FLOOR       = 0,
+	TILE_WALL        = 1,
 	TILE_DOOR_CLOSED = 2,
-	TILE_DOOR_OPEN = 3
+	TILE_DOOR_OPEN   = 3,
+	TILE_EXIT        = 4,
+	TILE_ENTRANCE    = 5,
+	TILE_VENT_CLOSED = 6,
+	TILE_VENT_OPEN   = 7
 }
 
 enum TILESET_LOGIC {
-	TILE_FLOOR = 0,
-	TILE_WALL = 1,
-	TILE_DOOR = 2,
-	TILE_EMPTY = 14,
-	TILE_VOID = 15
+	TILE_FLOOR       = 0,
+	TILE_WALL        = 1,
+	TILE_DOOR        = 2,
+	TILE_VENT        = 3,
+	TILE_EXIT        = 4,
+	TILE_ENTRANCE    = 5,
+	TILE_EMPTY       = 14,
+	TILE_VOID        = 15
 	}
 
 # READY
@@ -167,11 +175,15 @@ func fog_update():
 	
 	for cell in cell_array:
 		player.raycast_cast_to(player_position,cell)
-		if player.NODE_RAYCAST.is_colliding() == true:
-			var raycast_collider = player.NODE_RAYCAST.get_collision_point()
-			var raycast_collider_position = self.world_to_map(raycast_collider)
-			Global.LAYER_FOG.set_cell(raycast_collider_position.x, raycast_collider_position.y, TILESET_FOG.TILE_NONE)
-		if player.NODE_RAYCAST.is_colliding() == false:
+		if player.NODE_RAYCAST_FOG.is_colliding() == true:
+			var raycast_collider = player.NODE_RAYCAST_FOG.get_collider()
+			var raycast_collider_point = player.NODE_RAYCAST_FOG.get_collision_point()
+			var raycast_collider_position = self.world_to_map(raycast_collider_point)
+			if raycast_collider == Global.LEVEL_LAYER_LOGIC:
+				Global.LAYER_FOG.set_cell(raycast_collider_position.x, raycast_collider_position.y, TILESET_FOG.TILE_NONE)
+			elif raycast_collider.is_in_group(Global.GROUPS.HOSTILE):
+				Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
+		if player.NODE_RAYCAST_FOG.is_colliding() == false:
 			Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 
 func tile_to_pixel_center(x,y):
@@ -201,12 +213,19 @@ func bsp_generator():
 	# FILL MIDDLE ROOMS
 	bsp_generator_fill_middle_rooms()
 	bsp_generator_get_rooms()
+	
+	# ADD MISCELLANEOUS TO ROOMS
+	bsp_generator_add_passage()
+	bsp_generator_add_vents()
 
 	# SET TEXTURES FOR TILES
 	tilemap_texture_set_random(TILESET_BASE.TILE_DOOR_CLOSED,TILESET_LOGIC.TILE_DOOR)
 	tilemap_texture_set_random(TILESET_BASE.TILE_WALL,TILESET_LOGIC.TILE_VOID)
 	tilemap_texture_set_random(TILESET_BASE.TILE_FLOOR,TILESET_LOGIC.TILE_FLOOR)
 	tilemap_texture_set_random(TILESET_BASE.TILE_WALL,TILESET_LOGIC.TILE_WALL)
+	tilemap_texture_set_random(TILESET_BASE.TILE_VENT_CLOSED,TILESET_LOGIC.TILE_VENT)
+	tilemap_texture_set_random(TILESET_BASE.TILE_EXIT,TILESET_LOGIC.TILE_EXIT)
+	tilemap_texture_set_random(TILESET_BASE.TILE_ENTRANCE,TILESET_LOGIC.TILE_ENTRANCE)
 #	Global.LEVEL_LAYER_BASE.update_bitmask_region()
 
 #LOGIC_TILES.TILE_EMPTY = Global.LEVEL_LAYER_LOGIC.get_tileset().find_tile_by_name("TILE_EMPTY")
@@ -365,8 +384,8 @@ func bsp_generator_fill_middle_rooms():
 	var cells_to_fill:Array = []
 	var count:int
 	
-	print("GOT ROOM")
-	print(room)
+#	print("GOT ROOM")
+#	print(room)
 	
 	for cell in room:
 		count = 0
@@ -388,6 +407,55 @@ func bsp_generator_fill_middle_rooms():
 			if wall_count >= 3:
 				set_cellv(cell, TILESET_LOGIC.TILE_WALL)
 				done = false
+	pass
+
+func bsp_generator_add_passage():
+	var tile:Vector2
+	var room:Array
+	
+	#ADD EXIT
+	room = (rooms_array[rand_range(0,rooms_array.size())])
+	room.shuffle()
+#	tile = (room[randi() % room.size()])
+	
+	for cell in room:
+#		if get_cellv(cell) != TILESET_LOGIC.TILE_FLOOR: continue
+		var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
+		if count == 0:
+			rooms_array.erase(room)
+			self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_EXIT)
+			break
+	
+	#ADD ENTRANCE
+	room = (rooms_array[rand_range(0,rooms_array.size())])
+	room.shuffle()
+#	tile = (room[randi() % room.size()])
+
+	for cell in room:
+#		if get_cellv(cell) != TILESET_LOGIC.TILE_FLOOR: continue
+		var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
+		if count == 0:
+			rooms_array.erase(cell) 
+			self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_ENTRANCE)
+			break
+
+func bsp_generator_add_vents():
+	var vent_amount = 4
+	var cells_to_check = self.get_used_cells_by_id(TILESET_LOGIC.TILE_WALL)
+	var walls_array = []
+	for cell in cells_to_check:
+		if get_cellv(cell) != TILESET_LOGIC.TILE_WALL: continue
+		var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_FLOOR)
+		if count == 1: walls_array.append(cell)
+	for i in range (0,vent_amount):
+		var tile = walls_array[randi() % walls_array.size()]
+		self.set_cell(tile.x,tile.y,TILESET_LOGIC.TILE_VENT)
+		walls_array.erase(tile)
+
+func bsp_generator_add_mobs(mobs:Array): 
+	pass
+
+func bsp_generator_add_items(items:Array):
 	pass
 
 func bsp_generator_sort_room_vectors(rooms:Array):

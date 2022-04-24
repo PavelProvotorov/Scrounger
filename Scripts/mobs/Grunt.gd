@@ -2,7 +2,6 @@ extends KinematicBody2D
 
 onready var NODE_ANIMATED_SPRITE = $AnimatedSprite
 onready var NODE_COLLISION_2D = $CollisionShape2D
-onready var NODE_RAYCAST = $RayCast2D
 onready var NODE_TWEEN = $Tween
 onready var NODE_MAIN = self
 

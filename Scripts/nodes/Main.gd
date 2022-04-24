@@ -2,6 +2,7 @@ extends Node2D
 
 const grid_size = 8
 
+var level_entrance
 var level_queue
 
 var moving_entity
@@ -30,7 +31,9 @@ signal on_mob_action_finished
 func _ready():
 	level_load("Level_Empty")
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
-	level_mob_spawn("Player",Vector2(5,11))
+	level_entrance = Global.LEVEL_LAYER_LOGIC.get_used_cells_by_id(Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_ENTRANCE)
+	level_mob_spawn("Player",level_entrance[0])
+#	level_mob_spawn("Player",Vector2(14,5))
 #	level_mob_spawn("Grunt",Vector2(13,9))
 #	level_mob_spawn("Grunt",Vector2(6,3))
 #	level_mob_spawn("Grunt",Vector2(7,5))
@@ -47,14 +50,14 @@ func _ready():
 # MOB BEHAVIOUR
 #---------------------------------------------------------------------------------------
 func manager_mob():
-#	print("---------------------------------------------------------")
-#	print("THE QUEUE SIZE IS: %s" %level_queue.size())
+	print("---------------------------------------------------------")
+	print("THE QUEUE SIZE IS: %s" %level_queue.size())
 	for i in (level_queue.size()):
 		print(i)
 		yield(get_tree().create_timer(0.1),"timeout")
 		moving_entity = Global.LEVEL_LAYER_LOGIC.get_node(level_queue[i][1])
 #		print("Currently Moving: %s" %moving_entity.name)
-#		print("Currently Moving: %s" %moving_entity)
+		print("Currently Moving: %s" %moving_entity)
 		manager_mob_actions()
 		yield(self,"on_manager_mob_actions_finished")
 
@@ -71,16 +74,25 @@ func manager_mob_actions():
 			moving_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(moving_entity.get_global_position())
 			target_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(target_entity.get_global_position())
 			moving_entity_path = Global.LEVEL_LAYER_LOGIC.astar_get_path(moving_entity_position,target_entity_position)
-			if moving_entity_path[1] == target_entity_position:
-				print("ATTACK")
-				mob_action_attack(moving_entity_path[0],moving_entity_path[1])
-				yield(self,"on_mob_action_finished")
-			if moving_entity_path[1] != target_entity_position:
-				print("MOVE")
-				mob_action_move(moving_entity_path[0],moving_entity_path[1])
-				yield(self,"on_mob_action_finished")
+			print(moving_entity_path)
+			print(moving_entity_path.size())
+			if moving_entity_path.size() > 0:
+				if moving_entity_path[1] == target_entity_position:
+					print("ATTACK")
+					mob_action_attack(moving_entity_path[0],moving_entity_path[1])
+					yield(self,"on_mob_action_finished")
+				elif moving_entity_path[1] != target_entity_position:
+					print("MOVE")
+					mob_action_move(moving_entity_path[0],moving_entity_path[1])
+					yield(self,"on_mob_action_finished")
+			elif moving_entity_path.size() == 0:
+				mob_action_skip()
+				yield(self.mob_action_skip(),"completed")
 	print("< MANAGER MOB ACTIONS FINISHED >")
 	emit_signal("on_manager_mob_actions_finished")
+
+func mob_action_skip():
+	yield(get_tree(),"idle_frame")
 
 func mob_action_move(cellA:Vector2,cellB:Vector2):
 	#MOB MOVEMENT | START
