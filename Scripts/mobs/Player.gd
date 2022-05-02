@@ -8,12 +8,14 @@ onready var NODE_RAYCAST_COLLIDE = $RayCastCollide
 onready var NODE_TWEEN = $Tween
 onready var NODE_MAIN = self
 
-const inputList = {
-	"ui_up": Vector2.UP,
-	"ui_down": Vector2.DOWN,
-	"ui_left": Vector2.LEFT,
-	"ui_right": Vector2.RIGHT
-	}
+const INPUT_LIST = {
+	UI_UP    = "ui_up",
+	UI_DOWN  = "ui_down",
+	UI_LEFT  = "ui_left",
+	UI_RIGHT = "ui_right",
+	UI_PICK  = "ui_pick"
+}
+
 const ANIMATIONS= {
 	IDLE = "IDLE"
 }
@@ -58,20 +60,34 @@ func _ready():
 	NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(ANIMATIONS.IDLE)))
 	pass
 
-func _unhandled_input(event):
-	if NODE_TWEEN.is_active():
+func _unhandled_input(key):
+	if NODE_TWEEN.is_active(): 
 		return
-	for input in inputList.keys():
-		if event.is_action_pressed(input):
+	for input in INPUT_LIST.values():
+		if key.is_action_pressed(input):
 			if Global.GAME_STATE == Global.GAME_STATE_LIST.STATE_PLAYER_TURN:
-				_move_player(input)
+				if input == INPUT_LIST.UI_UP:    action_player_move(Vector2.UP)
+				if input == INPUT_LIST.UI_DOWN:  action_player_move(Vector2.DOWN)
+				if input == INPUT_LIST.UI_LEFT:  action_player_move(Vector2.LEFT)
+				if input == INPUT_LIST.UI_RIGHT: action_player_move(Vector2.RIGHT)
+				if input == INPUT_LIST.UI_PICK:  action_player_pick()
 			else:
 				pass
 
-func _move_player(direction):
+func action_player_pick():
+	var cell = NODE_MAIN.position
+	NODE_RAYCAST_COLLIDE.cast_to = (cell)
+	NODE_RAYCAST_COLLIDE.force_raycast_update()
+	
+	if NODE_RAYCAST_COLLIDE.is_colliding() == false: pass
+	if NODE_RAYCAST_COLLIDE.is_colliding() == true:
+		var collider = NODE_RAYCAST_COLLIDE.get_collider()
+		print(collider)
+
+func action_player_move(direction):
 	var cellA = NODE_MAIN.position
-	var cellB = NODE_MAIN.position + (inputList[direction] * grid_size)
-	NODE_RAYCAST_COLLIDE.cast_to = (inputList[direction] * grid_size)
+	var cellB = NODE_MAIN.position + (direction * grid_size)
+	NODE_RAYCAST_COLLIDE.cast_to = (direction * grid_size)
 	NODE_RAYCAST_COLLIDE.force_raycast_update()
 	
 	if NODE_RAYCAST_COLLIDE.is_colliding() == false:
@@ -110,9 +126,8 @@ func _move_player(direction):
 #			NODE_MAIN.animation_change(ANIMATIONS.MELEE_IDLE,true,false)
 			NODE_MAIN.z_index -= 1
 			check_turn()
-		elif NODE_RAYCAST_COLLIDE.get_collider().is_in_group(Global.GROUPS.HOSTILE) == false:
-			pass
-		else:
+		elif NODE_RAYCAST_COLLIDE.get_collider().is_in_group(Global.GROUPS.HOSTILE) == false: pass
+		else: 
 			pass
 	else:
 		return

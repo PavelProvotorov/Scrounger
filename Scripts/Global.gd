@@ -48,6 +48,7 @@ const ANIMATIONS = {
 	MELEE_IDLE  = "MELEE_IDLE"
 }
 const GROUPS = {
+	ITEM = "ITEM",
 	PLAYER = "PLAYER",
 	HOSTILE = "HOSTILE",
 	ALLY = "ALLY",

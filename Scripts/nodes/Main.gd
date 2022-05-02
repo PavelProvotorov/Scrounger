@@ -32,6 +32,8 @@ func _ready():
 	level_load("Level_Empty")
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
 	level_entrance = Global.LEVEL_LAYER_LOGIC.get_used_cells_by_id(Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_ENTRANCE)
+#	level_item_spawn("Ammo",level_entrance[0]+Vector2.UP)
+	level_item_spawn("Ammo",level_entrance[0])
 	level_mob_spawn("Player",level_entrance[0])
 #	level_mob_spawn("Player",Vector2(14,5))
 #	level_mob_spawn("Grunt",Vector2(13,9))
@@ -148,6 +150,13 @@ func level_mob_spawn(mob_name,mob_position:Vector2):
 	var mob_instance = mob_data.instance()
 	Global.LEVEL_LAYER_LOGIC.add_child(mob_instance)
 	mob_instance.set_global_position(Vector2((mob_position.x)*grid_size,(mob_position.y)*grid_size))
+	pass
+
+func level_item_spawn(item_name,item_position:Vector2):
+	var item_data = load("res://Items/%s.tscn" %item_name)
+	var item_instance = item_data.instance()
+	Global.LEVEL_LAYER_LOGIC.add_child(item_instance)
+	item_instance.set_global_position(Vector2((item_position.x)*grid_size,(item_position.y)*grid_size))
 	pass
 
 func level_queue_prepare():
