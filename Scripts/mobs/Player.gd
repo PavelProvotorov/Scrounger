@@ -66,71 +66,77 @@ func _unhandled_input(key):
 	for input in INPUT_LIST.values():
 		if key.is_action_pressed(input):
 			if Global.GAME_STATE == Global.GAME_STATE_LIST.STATE_PLAYER_TURN:
-				if input == INPUT_LIST.UI_UP:    action_player_move(Vector2.UP)
-				if input == INPUT_LIST.UI_DOWN:  action_player_move(Vector2.DOWN)
-				if input == INPUT_LIST.UI_LEFT:  action_player_move(Vector2.LEFT)
-				if input == INPUT_LIST.UI_RIGHT: action_player_move(Vector2.RIGHT)
-				if input == INPUT_LIST.UI_PICK:  action_player_pick()
+				if input == INPUT_LIST.UI_UP:    action_collision_check(Vector2.UP)
+				if input == INPUT_LIST.UI_DOWN:  action_collision_check(Vector2.DOWN)
+				if input == INPUT_LIST.UI_LEFT:  action_collision_check(Vector2.LEFT)
+				if input == INPUT_LIST.UI_RIGHT: action_collision_check(Vector2.RIGHT)
+				if input == INPUT_LIST.UI_PICK:  action_pick(Vector2(0,0))
 			else:
 				pass
 
-func action_player_pick():
-	var cell = NODE_MAIN.position
-	NODE_RAYCAST_COLLIDE.cast_to = (cell)
+func action_collision_check(direction):
+	NODE_RAYCAST_COLLIDE.cast_to = (direction*grid_size)
+	NODE_RAYCAST_COLLIDE.force_raycast_update()
+	
+	if NODE_RAYCAST_COLLIDE.is_colliding() == false: action_move(direction)
+	if NODE_RAYCAST_COLLIDE.is_colliding() == true:
+		var cellA = NODE_MAIN.position
+		var cellB = NODE_MAIN.position + (direction * grid_size)
+		var collider = NODE_RAYCAST_COLLIDE.get_collider()
+		var collider_cell = Vector2(cellB.x/8,cellB.y/8)
+		var collider_cell_id = Global.LEVEL_LAYER_LOGIC.get_cell(collider_cell.x,collider_cell.y)
+		
+		if collider.get_class() == "KinematicBody2D":
+			if collider.is_in_group(Global.GROUPS.HOSTILE) == true: action_attack(direction,collider)
+		if collider.get_class() == "StaticBody2D":
+			if collider.is_in_group(Global.GROUPS.ITEM) == true: action_move(direction)
+		if collider.get_class() == "TileMap":
+			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_DOOR:
+				Global.LEVEL_LAYER_LOGIC.set_cell(collider_cell.x,collider_cell.y,Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR)
+				Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
+				action_move(direction)
+
+func action_pick(direction):
+	print("PICK ITEMS")
+	NODE_RAYCAST_COLLIDE.cast_to = (direction)
 	NODE_RAYCAST_COLLIDE.force_raycast_update()
 	
 	if NODE_RAYCAST_COLLIDE.is_colliding() == false: pass
 	if NODE_RAYCAST_COLLIDE.is_colliding() == true:
 		var collider = NODE_RAYCAST_COLLIDE.get_collider()
-		print(collider)
+		if collider.get_class() == "StaticBody2D":
+			if collider.is_in_group(Global.GROUPS.ITEM) == true: pass
+		
+	pass
 
-func action_player_move(direction):
+func action_move(direction):
 	var cellA = NODE_MAIN.position
 	var cellB = NODE_MAIN.position + (direction * grid_size)
-	NODE_RAYCAST_COLLIDE.cast_to = (direction * grid_size)
-	NODE_RAYCAST_COLLIDE.force_raycast_update()
 	
-	if NODE_RAYCAST_COLLIDE.is_colliding() == false:
-		if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
-		if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
-		NODE_MAIN.action_move_tween(cellA,cellB)
-		$Sound.play()
-		yield(NODE_TWEEN,"tween_all_completed")
-		Global.LEVEL_LAYER_LOGIC.fog_update()
-		check_turn()
+	#ANIMATION FLIP CHECK
+	if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
+	if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
+	
+	NODE_MAIN.action_move_tween(cellA,cellB)
+	$Sound.play()
+	yield(NODE_TWEEN,"tween_all_completed")
+	Global.LEVEL_LAYER_LOGIC.fog_update()
+	check_turn()
 
-	if NODE_RAYCAST_COLLIDE.is_colliding() == true:
-		var collider = NODE_RAYCAST_COLLIDE.get_collider()
-		print(collider)
-		if NODE_RAYCAST_COLLIDE.get_collider() == Global.LEVEL_LAYER_LOGIC:
-			var collider_cell = Vector2(cellB.x/8,cellB.y/8)
-			var collider_cell_id = Global.LEVEL_LAYER_LOGIC.get_cell(collider_cell.x,collider_cell.y)
-			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_WALL: pass
-			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_VOID: pass
-			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_DOOR:
-				Global.LEVEL_LAYER_LOGIC.set_cell(collider_cell.x,collider_cell.y,Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR)
-				Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
-				NODE_MAIN.action_move_tween(cellA,cellB)
-				$Sound.play()
-				yield(NODE_TWEEN,"tween_all_completed")
-				Global.LEVEL_LAYER_LOGIC.fog_update()
-				check_turn()
-		elif NODE_RAYCAST_COLLIDE.get_collider().is_in_group(Global.GROUPS.HOSTILE) == true:
-			if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
-			if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
-			NODE_MAIN.z_index += 1
-#			NODE_MAIN.animation_change(ANIMATIONS.MELEE_ATTACK,true,false)
-			NODE_MAIN.calculate_melee_damage(self,collider)
-			NODE_MAIN.action_attack_tween(cellA,cellB)
-			yield(NODE_TWEEN,"tween_all_completed")
-#			NODE_MAIN.animation_change(ANIMATIONS.MELEE_IDLE,true,false)
-			NODE_MAIN.z_index -= 1
-			check_turn()
-		elif NODE_RAYCAST_COLLIDE.get_collider().is_in_group(Global.GROUPS.HOSTILE) == false: pass
-		else: 
-			pass
-	else:
-		return
+func action_attack(direction,collider):
+	var cellA = NODE_MAIN.position
+	var cellB = NODE_MAIN.position + (direction * grid_size)
+	
+	#ANIMATION FLIP CHECK
+	if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
+	if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
+
+	NODE_MAIN.z_index += 1
+	NODE_MAIN.calculate_melee_damage(self,collider)
+	NODE_MAIN.action_attack_tween(cellA,cellB)
+	yield(NODE_TWEEN,"tween_all_completed")
+	NODE_MAIN.z_index -= 1
+	check_turn()
 
 func raycast_cast_to(cell_start,cell_finish):
 	var cell_cast_to = Vector2(((cell_finish.x-cell_start.x)*grid_size),((cell_finish.y-cell_start.y)*grid_size))

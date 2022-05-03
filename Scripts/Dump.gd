@@ -336,3 +336,51 @@
 #				var occlusion = space_state.intersect_ray(player_center, test_point)
 #				if !occlusion || (occlusion.position - test_point).length() < 1:
 #					Global.LAYER_FOG.set_cell(x, y, TILESET_FOG.TILE_NONE)
+
+#func action_move_old(direction):
+#	var cellA = NODE_MAIN.position
+#	var cellB = NODE_MAIN.position + (direction * grid_size)
+#	NODE_RAYCAST_COLLIDE.cast_to = (direction * grid_size)
+#	NODE_RAYCAST_COLLIDE.force_raycast_update()
+#
+#	if NODE_RAYCAST_COLLIDE.is_colliding() == false:
+#		if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
+#		if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
+#		NODE_MAIN.action_move_tween(cellA,cellB)
+#		$Sound.play()
+#		yield(NODE_TWEEN,"tween_all_completed")
+#		Global.LEVEL_LAYER_LOGIC.fog_update()
+#		check_turn()
+#
+#	if NODE_RAYCAST_COLLIDE.is_colliding() == true:
+#		var collider = NODE_RAYCAST_COLLIDE.get_collider()
+#		print(collider)
+#		if NODE_RAYCAST_COLLIDE.get_collider() == Global.LEVEL_LAYER_LOGIC:
+#			var collider_cell = Vector2(cellB.x/8,cellB.y/8)
+#			var collider_cell_id = Global.LEVEL_LAYER_LOGIC.get_cell(collider_cell.x,collider_cell.y)
+#			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_WALL: pass
+#			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_VOID: pass
+#			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_DOOR:
+#				Global.LEVEL_LAYER_LOGIC.set_cell(collider_cell.x,collider_cell.y,Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR)
+#				Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
+#				NODE_MAIN.action_move_tween(cellA,cellB)
+#				$Sound.play()
+#				yield(NODE_TWEEN,"tween_all_completed")
+#				Global.LEVEL_LAYER_LOGIC.fog_update()
+#				check_turn()
+#		elif NODE_RAYCAST_COLLIDE.get_collider().is_in_group(Global.GROUPS.HOSTILE) == true:
+#			if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
+#			if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
+#			NODE_MAIN.z_index += 1
+##			NODE_MAIN.animation_change(ANIMATIONS.MELEE_ATTACK,true,false)
+#			NODE_MAIN.calculate_melee_damage(self,collider)
+#			NODE_MAIN.action_attack_tween(cellA,cellB)
+#			yield(NODE_TWEEN,"tween_all_completed")
+##			NODE_MAIN.animation_change(ANIMATIONS.MELEE_IDLE,true,false)
+#			NODE_MAIN.z_index -= 1
+#			check_turn()
+#		elif NODE_RAYCAST_COLLIDE.get_collider().is_in_group(Global.GROUPS.HOSTILE) == false: pass
+#		else: 
+#			pass
+#	else:
+#		return
