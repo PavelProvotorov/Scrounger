@@ -75,26 +75,39 @@ func _unhandled_input(key):
 				pass
 
 func action_collision_check(direction):
-	NODE_RAYCAST_COLLIDE.cast_to = (direction*grid_size)
-	NODE_RAYCAST_COLLIDE.force_raycast_update()
+	var done = false
+	while done == false:
+		NODE_RAYCAST_COLLIDE.cast_to = (direction*grid_size)
+		NODE_RAYCAST_COLLIDE.force_raycast_update()
 	
-	if NODE_RAYCAST_COLLIDE.is_colliding() == false: action_move(direction)
-	if NODE_RAYCAST_COLLIDE.is_colliding() == true:
-		var cellA = NODE_MAIN.position
-		var cellB = NODE_MAIN.position + (direction * grid_size)
-		var collider = NODE_RAYCAST_COLLIDE.get_collider()
-		var collider_cell = Vector2(cellB.x/8,cellB.y/8)
-		var collider_cell_id = Global.LEVEL_LAYER_LOGIC.get_cell(collider_cell.x,collider_cell.y)
-		
-		if collider.get_class() == "KinematicBody2D":
-			if collider.is_in_group(Global.GROUPS.HOSTILE) == true: action_attack(direction,collider)
-		if collider.get_class() == "StaticBody2D":
-			if collider.is_in_group(Global.GROUPS.ITEM) == true: action_move(direction)
-		if collider.get_class() == "TileMap":
-			if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_DOOR:
-				Global.LEVEL_LAYER_LOGIC.set_cell(collider_cell.x,collider_cell.y,Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR)
-				Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
-				action_move(direction)
+		if NODE_RAYCAST_COLLIDE.is_colliding() == false: 
+			action_move(direction)
+			done = true
+		if NODE_RAYCAST_COLLIDE.is_colliding() == true:
+			var cellA = NODE_MAIN.position
+			var cellB = NODE_MAIN.position + (direction * grid_size)
+			var collider = NODE_RAYCAST_COLLIDE.get_collider()
+			var collider_cell = Vector2(cellB.x/8,cellB.y/8)
+			var collider_cell_id = Global.LEVEL_LAYER_LOGIC.get_cell(collider_cell.x,collider_cell.y)
+
+			if collider.get_class() == "KinematicBody2D":
+				print("BUMP INTO KINEMATIC BODY")
+				if collider.is_in_group(Global.GROUPS.HOSTILE) == true: 
+					action_attack(direction,collider)
+					done = true
+			if collider.get_class() == "StaticBody2D":
+				print("BUMP INTO STATIC BODY")
+				if collider.is_in_group(Global.GROUPS.ITEM) == true:
+					NODE_RAYCAST_COLLIDE.add_exception(collider)
+			if collider.get_class() == "TileMap":
+				if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_DOOR:
+					Global.LEVEL_LAYER_LOGIC.set_cell(collider_cell.x,collider_cell.y,Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR)
+					Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
+					action_move(direction)
+					done = true
+				else:
+					done = true
+	NODE_RAYCAST_COLLIDE.clear_exceptions()
 
 func action_pick(direction):
 	print("PICK ITEMS")

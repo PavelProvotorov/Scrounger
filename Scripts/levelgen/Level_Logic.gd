@@ -182,8 +182,10 @@ func fog_update():
 			if raycast_collider == Global.LEVEL_LAYER_LOGIC:
 				Global.LAYER_FOG.set_cell(raycast_collider_position.x, raycast_collider_position.y, TILESET_FOG.TILE_NONE)
 			elif raycast_collider.is_in_group(Global.GROUPS.HOSTILE):
+				player.NODE_RAYCAST_FOG.add_exception(raycast_collider)
 				Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 			elif raycast_collider.is_in_group(Global.GROUPS.ITEM):
+				player.NODE_RAYCAST_FOG.add_exception(raycast_collider)
 				Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 		if player.NODE_RAYCAST_FOG.is_colliding() == false:
 			Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
