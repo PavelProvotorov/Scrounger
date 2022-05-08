@@ -76,6 +76,9 @@ var gameTargetNode
 var gameMovingNode
 
 #---------------------------------------------------------------------------------------
+func _ready():
+	pass
+
 func game_state_manager(state):
 	GAME_STATE = state
 	if GAME_STATE == GAME_STATE_LIST.STATE_NONE:

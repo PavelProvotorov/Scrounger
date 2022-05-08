@@ -13,7 +13,8 @@ const INPUT_LIST = {
 	UI_DOWN  = "ui_down",
 	UI_LEFT  = "ui_left",
 	UI_RIGHT = "ui_right",
-	UI_PICK  = "ui_pick"
+	UI_PICK  = "ui_pick",
+	UI_SHOOT = "ui_shoot"
 }
 
 const ANIMATIONS= {
@@ -25,16 +26,19 @@ const tween_speed = 8
 
 var turn_count:int
 
+var PLAYER_ACTION_SHOOT = false
+var PLAYER_ACTION_INPUT = false
+
 # STATS
 #---------------------------------------------------------------------------------------
-var stat_ranged_dmg:int = 1
-var stat_melee_dmg:int = 2
+var stat_ranged_dmg:int = 2
+var stat_melee_dmg:int = 1
 var stat_ambition:int = 3
 
 var stat_shield:int = 0
 var stat_health:int = 10
 var stat_speed:int = 1
-var stat_ammo:int = 0
+var stat_ammo:int = 10
 
 var hit_pos
 var vis_color = Color(.867, .91, .247, 0.1)
@@ -66,15 +70,27 @@ func _unhandled_input(key):
 	for input in INPUT_LIST.values():
 		if key.is_action_pressed(input):
 			if Global.GAME_STATE == Global.GAME_STATE_LIST.STATE_PLAYER_TURN:
-				if input == INPUT_LIST.UI_UP:    action_collision_check(Vector2.UP)
-				if input == INPUT_LIST.UI_DOWN:  action_collision_check(Vector2.DOWN)
-				if input == INPUT_LIST.UI_LEFT:  action_collision_check(Vector2.LEFT)
-				if input == INPUT_LIST.UI_RIGHT: action_collision_check(Vector2.RIGHT)
-				if input == INPUT_LIST.UI_PICK:  action_pick(Vector2(0,0))
-			else:
-				pass
+
+				if PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == false:
+					if input == INPUT_LIST.UI_UP:    action_collision_check(Vector2.UP)
+					if input == INPUT_LIST.UI_DOWN:  action_collision_check(Vector2.DOWN)
+					if input == INPUT_LIST.UI_LEFT:  action_collision_check(Vector2.LEFT)
+					if input == INPUT_LIST.UI_RIGHT: action_collision_check(Vector2.RIGHT)
+					if input == INPUT_LIST.UI_PICK:  action_pick(Vector2(0,0))
+					if input == INPUT_LIST.UI_SHOOT: check_ammo()
+
+				elif PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == true:
+					if input == INPUT_LIST.UI_UP:    action_shoot(Vector2.UP)
+					if input == INPUT_LIST.UI_DOWN:  action_shoot(Vector2.DOWN)
+					if input == INPUT_LIST.UI_LEFT:  action_shoot(Vector2.LEFT)
+					if input == INPUT_LIST.UI_RIGHT: action_shoot(Vector2.RIGHT)
+					if input == INPUT_LIST.UI_SHOOT: PLAYER_ACTION_SHOOT = false
+				else:
+					pass
 
 func action_collision_check(direction):
+	PLAYER_ACTION_INPUT = true
+	
 	var done = false
 	while done == false:
 		NODE_RAYCAST_COLLIDE.cast_to = (direction*grid_size)
@@ -91,12 +107,10 @@ func action_collision_check(direction):
 			var collider_cell_id = Global.LEVEL_LAYER_LOGIC.get_cell(collider_cell.x,collider_cell.y)
 
 			if collider.get_class() == "KinematicBody2D":
-				print("BUMP INTO KINEMATIC BODY")
 				if collider.is_in_group(Global.GROUPS.HOSTILE) == true: 
 					action_attack(direction,collider)
 					done = true
 			if collider.get_class() == "StaticBody2D":
-				print("BUMP INTO STATIC BODY")
 				if collider.is_in_group(Global.GROUPS.ITEM) == true:
 					NODE_RAYCAST_COLLIDE.add_exception(collider)
 			if collider.get_class() == "TileMap":
@@ -107,9 +121,49 @@ func action_collision_check(direction):
 					done = true
 				else:
 					done = true
+					
 	NODE_RAYCAST_COLLIDE.clear_exceptions()
+	PLAYER_ACTION_INPUT = false
+
+func action_shoot(direction):
+	PLAYER_ACTION_INPUT = true
+
+	var done = false
+	while done == false:
+		NODE_RAYCAST_COLLIDE.cast_to = (direction*(grid_size*3))
+		NODE_RAYCAST_COLLIDE.force_raycast_update()
+
+		if NODE_RAYCAST_COLLIDE.is_colliding() == false:
+			done = true
+		if NODE_RAYCAST_COLLIDE.is_colliding() == true:
+			var collider = NODE_RAYCAST_COLLIDE.get_collider()
+			
+			if collider.get_class() == "KinematicBody2D":
+				print("SHOOT INTO KINEMATIC BODY")
+				if collider.is_in_group(Global.GROUPS.HOSTILE) == true: 
+					var cellA = NODE_MAIN.position
+					var cellB = NODE_MAIN.position + (direction * grid_size)
+					
+					#ANIMATION FLIP CHECK
+					if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
+					if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
+					
+					NODE_MAIN.stat_ammo -= 1
+					NODE_MAIN.calculate_ranged_damage(self,collider)
+
+			if collider.get_class() == "StaticBody2D":
+				if collider.is_in_group(Global.GROUPS.ITEM) == true:
+					NODE_RAYCAST_COLLIDE.add_exception(collider)
+			if collider.get_class() == "TileMap": 
+				done = true
+
+	NODE_RAYCAST_COLLIDE.clear_exceptions()
+	PLAYER_ACTION_SHOOT = false
+	PLAYER_ACTION_INPUT = false
 
 func action_pick(direction):
+	PLAYER_ACTION_INPUT = true
+	
 	print("PICK ITEMS")
 	NODE_RAYCAST_COLLIDE.cast_to = (direction)
 	NODE_RAYCAST_COLLIDE.force_raycast_update()
@@ -118,9 +172,13 @@ func action_pick(direction):
 	if NODE_RAYCAST_COLLIDE.is_colliding() == true:
 		var collider = NODE_RAYCAST_COLLIDE.get_collider()
 		if collider.get_class() == "StaticBody2D":
-			if collider.is_in_group(Global.GROUPS.ITEM) == true: pass
-		
-	pass
+			if collider.is_in_group(Global.GROUPS.ITEM) == true:
+						Global.LEVEL_LAYER_LOGIC.remove_child(collider)
+						collider.queue_free()
+						stat_ammo += 1
+						check_turn()
+						
+	PLAYER_ACTION_INPUT = false
 
 func action_move(direction):
 	var cellA = NODE_MAIN.position
@@ -156,6 +214,12 @@ func raycast_cast_to(cell_start,cell_finish):
 	NODE_RAYCAST_FOG.cast_to = Vector2(cell_cast_to.x,cell_cast_to.y)
 	NODE_RAYCAST_FOG.force_raycast_update()
 
+func check_ammo():
+	if stat_ammo >= 1:
+		PLAYER_ACTION_SHOOT = true
+	else:
+		pass
+
 func check_turn():
 	turn_count += 1
 	if turn_count != stat_speed:
@@ -174,8 +238,16 @@ func ui_update():
 func calculate_melee_damage(is_attacker,is_target):
 	is_target.stat_health -= is_attacker.stat_melee_dmg
 	if is_target.stat_health <= 0: 
-			is_target.queue_free()
 			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
+			is_target.queue_free()
+
+func calculate_ranged_damage(is_attacker,is_target):
+	print("CALCULATING RANGED DAMAGE ")
+	is_target.stat_health -= is_attacker.stat_ranged_dmg
+	if is_target.stat_health <= 0: 
+			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
+			is_target.queue_free()
+			check_turn()
 
 func animation_flip(is_flip_h:bool, is_flip_v:bool):
 	NODE_ANIMATED_SPRITE.flip_h = is_flip_h

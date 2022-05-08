@@ -62,6 +62,8 @@ func astar_prepare():
 	astar_clear()
 	astar_get_cells(TILESET_LOGIC.TILE_FLOOR)
 	astar_get_cells(TILESET_LOGIC.TILE_DOOR)
+	astar_get_cells(TILESET_LOGIC.TILE_ENTRANCE)
+	astar_get_cells(TILESET_LOGIC.TILE_EXIT)
 	pass
 
 func astar_build():
