@@ -384,3 +384,78 @@
 #			pass
 #	else:
 #		return
+
+#func util_create_tunnel(point1, point2, cave, tile_empty, tile_filled):
+#	randomize()
+#	var max_steps = 500
+#	var steps = 0
+#	var drunk_x = point2[0]
+#	var drunk_y = point2[1]
+#
+#	while steps < max_steps and !cave.has(Vector2(drunk_x, drunk_y)):
+#		steps += 1
+#
+#		# set initial dir weights
+#		var n       = 1.0
+#		var s       = 1.0
+#		var e       = 1.0
+#		var w       = 1.0
+#		var weight  = 1
+#
+#		# weight the random walk against edges
+#		if drunk_x < point1.x: # drunkard is left of point1
+#			e += weight
+#		elif drunk_x > point1.x: # drunkard is right of point1
+#			w += weight
+#		if drunk_y < point1.y: # drunkard is above point1
+#			s += weight
+#		elif drunk_y > point1.y: # drunkard is below point1
+#			n += weight
+#
+#		# normalize probabilities so they form a range from 0 to 1
+#		var total = n + s + e + w
+#		n /= total
+#		s /= total
+#		e /= total
+#		w /= total
+#
+#		var dx
+#		var dy
+#
+#		# choose the direction
+#		var choice = randf()
+#
+#		if 0 <= choice and choice < n:
+#			dx = 0
+#			dy = -1
+#		elif n <= choice and choice < (n+s):
+#			dx = 0
+#			dy = 1
+#		elif (n+s) <= choice and choice < (n+s+e):
+#			dx = 1
+#			dy = 0
+#		else:
+#			dx = -1
+#			dy = 0
+#
+#		# ensure not to walk past edge of map
+#		if (2 < drunk_x + dx and drunk_x + dx < map_width-2) and \
+#			(2 < drunk_y + dy and drunk_y + dy < map_height-2):
+#			drunk_x += dx
+#			drunk_y += dy
+#			if self.get_cell(drunk_x, drunk_y) == tile_filled:
+#				self.set_cell(drunk_x, drunk_y, tile_empty)
+#
+#				# optional: make tunnel wider
+#				self.set_cell(drunk_x+1, drunk_y, tile_empty)
+#				self.set_cell(drunk_x+1, drunk_y+1, tile_empty)
+
+#func tilemap_check_bottom_cell(x,y):
+#	var cell_data = []
+#	if get_cell(x, y)   == TILESET_LOGIC.TILE_WALL :  cell_data.append(true)
+#	if get_cell(x, y)   == TILESET_LOGIC.TILE_VOID :  cell_data.append(true)
+#	if get_cell(x-1, y) == TILESET_LOGIC.TILE_WALL :  cell_data.append(true)
+#	if get_cell(x-1, y) == TILESET_LOGIC.TILE_VOID :  cell_data.append(true)
+#	if get_cell(x+1, y) == TILESET_LOGIC.TILE_WALL :  cell_data.append(true)
+#	if get_cell(x+1, y) == TILESET_LOGIC.TILE_VOID :  cell_data.append(true)
+#	return cell_data

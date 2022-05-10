@@ -148,8 +148,9 @@ func action_shoot(direction):
 					if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
 					if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 					
-					NODE_MAIN.stat_ammo -= 1
 					NODE_MAIN.calculate_ranged_damage(self,collider)
+					NODE_MAIN.stat_ammo -= 1
+					done = true
 
 			if collider.get_class() == "StaticBody2D":
 				if collider.is_in_group(Global.GROUPS.ITEM) == true:
@@ -214,6 +215,10 @@ func raycast_cast_to(cell_start,cell_finish):
 	NODE_RAYCAST_FOG.cast_to = Vector2(cell_cast_to.x,cell_cast_to.y)
 	NODE_RAYCAST_FOG.force_raycast_update()
 
+func action_finish():
+	yield(get_tree(),"idle_frame")
+	pass
+
 func check_ammo():
 	if stat_ammo >= 1:
 		PLAYER_ACTION_SHOOT = true
@@ -240,14 +245,15 @@ func calculate_melee_damage(is_attacker,is_target):
 	if is_target.stat_health <= 0: 
 			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
 			is_target.queue_free()
+			yield(self.action_finish(),"completed")
 
 func calculate_ranged_damage(is_attacker,is_target):
-	print("CALCULATING RANGED DAMAGE ")
 	is_target.stat_health -= is_attacker.stat_ranged_dmg
 	if is_target.stat_health <= 0: 
 			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
 			is_target.queue_free()
 			check_turn()
+			yield(self.action_finish(),"completed")
 
 func animation_flip(is_flip_h:bool, is_flip_v:bool):
 	NODE_ANIMATED_SPRITE.flip_h = is_flip_h
