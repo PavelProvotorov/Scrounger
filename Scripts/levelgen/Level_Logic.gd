@@ -11,9 +11,11 @@ var map_height = 18
 var min_width = 3
 var stop_width = min_width * 2 + 1
 
+var free_cells = []
 var rooms_vents_array = []
 var rooms_array = []
 var level = []
+var level_floor = 1
 
 const DIRECTIONS = {
 	UP = Vector2.UP,
@@ -160,9 +162,9 @@ func fog_update():
 	var player_position = Global.LEVEL_LAYER_LOGIC.world_to_map(player.get_global_position())
 	var player_position_center = tile_to_pixel_center(player_position.x, player_position.y)
 	
-	var test_size = 2
-	var rect_start = Vector2(player_position.x - test_size, player_position.y - test_size)
-	var rect_close = Vector2(player_position.x + test_size, player_position.y + test_size)
+	var fog_range = player.stat_visibility
+	var rect_start = Vector2(player_position.x - fog_range, player_position.y - fog_range)
+	var rect_close = Vector2(player_position.x + fog_range, player_position.y + fog_range)
 	var rect_width = ((rect_close.x - rect_start.x)+1)
 	var rect_height = ((rect_close.y - rect_start.y)+1)
 	var rect = Rect2(rect_start,rect_close)
@@ -184,6 +186,7 @@ func fog_update():
 			if raycast_collider == Global.LEVEL_LAYER_LOGIC:
 				Global.LAYER_FOG.set_cell(raycast_collider_position.x, raycast_collider_position.y, TILESET_FOG.TILE_NONE)
 			elif raycast_collider.is_in_group(Global.GROUPS.HOSTILE):
+				raycast_collider.AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
 				player.NODE_RAYCAST_FOG.add_exception(raycast_collider)
 				Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 			elif raycast_collider.is_in_group(Global.GROUPS.ITEM):
@@ -214,15 +217,13 @@ func bsp_generator():
 	
 	# FILL ONEWAY ROOMS
 	bsp_generator_fill_oneway_rooms()
-	bsp_generator_get_rooms()
-	
-	# FILL MIDDLE ROOMS
-	bsp_generator_fill_middle_rooms()
+	bsp_generator_clear_final()
 	bsp_generator_get_rooms()
 	
 	# ADD MISCELLANEOUS TO ROOMS
 	bsp_generator_add_passage()
 	bsp_generator_add_vents()
+	bsp_generator_add_mobs()
 
 	# SET TEXTURES FOR TILES
 	tilemap_texture_set_random(TILESET_BASE.TILE_DOOR_CLOSED,TILESET_LOGIC.TILE_DOOR)
@@ -329,6 +330,19 @@ func bsp_generator_clear_dead_walls():
 				done = false
 	pass
 
+func bsp_generator_clear_final():
+	# CLEAR DEADENDS AFTER FILL
+	var done = false
+	while !done:
+		done = true
+		for cell in get_used_cells_by_id(TILESET_LOGIC.TILE_DOOR):
+			if get_cellv(cell) != TILESET_LOGIC.TILE_DOOR: continue
+			var wall_count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+			if wall_count >= 3:
+				set_cellv(cell, TILESET_LOGIC.TILE_WALL)
+				done = false
+	pass
+
 func bsp_generator_get_rooms():
 	rooms_array = []
 	var empty_cells_array = []
@@ -340,6 +354,7 @@ func bsp_generator_get_rooms():
 	empty_cells_array = self.get_used_cells_by_id(TILESET_LOGIC.TILE_EMPTY)
 	for empty in empty_cells_array:
 		set_cell(empty.x, empty.y, TILESET_LOGIC.TILE_FLOOR)
+
 	pass
 
 func bsp_generator_flood_fill(cell_x,cell_y):
@@ -390,9 +405,6 @@ func bsp_generator_fill_middle_rooms():
 	var cells_to_fill:Array = []
 	var count:int
 	
-#	print("GOT ROOM")
-#	print(room)
-	
 	for cell in room:
 		count = 0
 		count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
@@ -402,35 +414,10 @@ func bsp_generator_fill_middle_rooms():
 	for i in cells_to_fill: 
 		set_cellv(i, TILESET_LOGIC.TILE_WALL)
 	pass
-	
-	# CLEAR DEADENDS AFTER FILL
-	var done = false
-	while !done:
-		done = true
-		for cell in get_used_cells_by_id(TILESET_LOGIC.TILE_DOOR):
-			if get_cellv(cell) != TILESET_LOGIC.TILE_DOOR: continue
-			var wall_count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
-			if wall_count >= 3:
-				set_cellv(cell, TILESET_LOGIC.TILE_WALL)
-				done = false
-	pass
 
 func bsp_generator_add_passage():
 	var tile:Vector2
 	var room:Array
-	
-	#ADD EXIT
-	room = (rooms_array[rand_range(0,rooms_array.size())])
-	room.shuffle()
-#	tile = (room[randi() % room.size()])
-	
-	for cell in room:
-#		if get_cellv(cell) != TILESET_LOGIC.TILE_FLOOR: continue
-		var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
-		if count == 0:
-			rooms_array.erase(room)
-			self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_EXIT)
-			break
 	
 	#ADD ENTRANCE
 	room = (rooms_array[rand_range(0,rooms_array.size())])
@@ -441,8 +428,21 @@ func bsp_generator_add_passage():
 #		if get_cellv(cell) != TILESET_LOGIC.TILE_FLOOR: continue
 		var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
 		if count == 0:
-			rooms_array.erase(cell) 
+			rooms_array.erase(room)
 			self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_ENTRANCE)
+			break
+			
+	#ADD EXIT
+	room = (rooms_array[rand_range(0,rooms_array.size())])
+	room.shuffle()
+#	tile = (room[randi() % room.size()])
+	
+	for cell in room:
+#		if get_cellv(cell) != TILESET_LOGIC.TILE_FLOOR: continue
+		var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
+		if count == 0:
+			room.erase(cell)
+			self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_EXIT)
 			break
 
 func bsp_generator_add_vents():
@@ -458,7 +458,26 @@ func bsp_generator_add_vents():
 		self.set_cell(tile.x,tile.y,TILESET_LOGIC.TILE_VENT)
 		walls_array.erase(tile)
 
-func bsp_generator_add_mobs(mobs:Array): 
+func bsp_generator_add_mobs():
+	var mobs_list = Mobs.MOB_LIST[level_floor].keys()
+	
+	free_cells = []
+	for room in rooms_array:
+		for cell in room:
+			free_cells.append(cell)
+		pass
+	
+	var mob_count  = (round(free_cells.size()/(rand_range(5,8))))
+	var mob_name   = 1
+	var mob_chance = 1
+	
+	print(mob_count)
+	
+	for mob in mob_count:
+		var cell = free_cells[randi() % free_cells.size()]
+		Global.NODE_MAIN.level_mob_spawn("Grunt",cell)
+		free_cells.erase(cell)
+		
 	pass
 
 func bsp_generator_add_items(items:Array):
@@ -496,6 +515,15 @@ func sort_room_vectors_custom(vector_a,vector_b):
 	if vector_a[0] > vector_b[0]:
 		return true
 	return false
+
+func util_get_rect(rect_range:int,object_pos):
+	var rect_start = Vector2(object_pos.x - rect_range, object_pos.y - rect_range)
+	var rect_close = Vector2(object_pos.x + rect_range, object_pos.y + rect_range)
+	var rect_width = ((rect_close.x - rect_start.x)+1)
+	var rect_height = ((rect_close.y - rect_start.y)+1)
+	var rect = Vector2(rect_width,rect_height)
+#	var rect = Rect2(rect_start,rect_close)
+	return rect
 
 func util_clear_deadends():
 	var done = false

@@ -57,7 +57,7 @@ func manager_mob():
 	print("THE QUEUE SIZE IS: %s" %level_queue.size())
 	for i in (level_queue.size()):
 		print(i)
-		yield(get_tree().create_timer(0.1),"timeout")
+		yield(get_tree().create_timer(0.025),"timeout")
 		moving_entity = Global.LEVEL_LAYER_LOGIC.get_node(level_queue[i][1])
 #		print("Currently Moving: %s" %moving_entity.name)
 		print("Currently Moving: %s" %moving_entity)
@@ -91,6 +91,9 @@ func manager_mob_actions():
 			elif moving_entity_path.size() == 0:
 				mob_action_skip()
 				yield(self.mob_action_skip(),"completed")
+	elif moving_entity.AI_state == Global.AI_STATE_LIST.STATE_IDLE: 
+		yield(self.mob_action_skip(),"completed")
+	
 	print("< MANAGER MOB ACTIONS FINISHED >")
 	emit_signal("on_manager_mob_actions_finished")
 
@@ -167,7 +170,7 @@ func level_queue_prepare():
 	var node_to_scan_size:int = node_to_scan.get_child_count()
 	for i in node_to_scan_size:
 		var node_child_group = node_to_scan.get_child(idx)
-		if node_child_group.is_in_group(Global.GROUPS.HOSTILE):
+		if node_child_group.is_in_group(Global.GROUPS.HOSTILE) and node_child_group.AI_state == Global.AI_STATE_LIST.STATE_ENGAGE:
 			var node_child_name:String = node_to_scan.get_child(idx).name
 			var node_child_data:int = node_to_scan.get_child(idx).stat_ambition
 			var node_child_fetch = [node_child_data,node_child_name]

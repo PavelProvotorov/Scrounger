@@ -12,7 +12,7 @@ const ANIMATIONS= {
 const tween_speed = 8
 const grid_size = 8
 
-var AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
+var AI_state = Global.AI_STATE_LIST.STATE_IDLE
 var AI_class = Global.AI_CLASS_LIST.CLASS_MELEE
 
 # STATS
@@ -30,6 +30,7 @@ func _ready():
 	randomize()
 	NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.IDLE)
 	NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(ANIMATIONS.IDLE)))
+	animation_flip(randi()%2,false)
 	pass
 
 func animation_flip(is_flip_h:bool, is_flip_v:bool):
