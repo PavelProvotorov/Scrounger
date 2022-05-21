@@ -33,7 +33,7 @@ func _ready():
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
 	level_entrance = Global.LEVEL_LAYER_LOGIC.get_used_cells_by_id(Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_ENTRANCE)
 #	level_mob_spawn("Grunt",level_entrance[0]+Vector2.UP)
-#	level_item_spawn("Ammo",level_entrance[0]+Vector2.UP)
+	level_item_spawn("Ammo",level_entrance[0]+Vector2.UP)
 #	level_item_spawn("Ammo",level_entrance[0])
 	level_mob_spawn("Player",level_entrance[0])
 #	level_mob_spawn("Player",Vector2(14,5))
@@ -81,12 +81,14 @@ func manager_mob_actions():
 			print(moving_entity_path.size())
 			if moving_entity_path.size() > 0:
 				if moving_entity_path[1] == target_entity_position:
-					print("ATTACK")
+#					print("ATTACK")
 					mob_action_attack(moving_entity_path[0],moving_entity_path[1])
 					yield(self,"on_mob_action_finished")
 				elif moving_entity_path[1] != target_entity_position:
-					print("MOVE")
+#					print("MOVE")
 					mob_action_move(moving_entity_path[0],moving_entity_path[1])
+					moving_entity.NODE_SOUND.stream = Sound.sfx_move
+					moving_entity.NODE_SOUND.play()
 					yield(self,"on_mob_action_finished")
 			elif moving_entity_path.size() == 0:
 				mob_action_skip()

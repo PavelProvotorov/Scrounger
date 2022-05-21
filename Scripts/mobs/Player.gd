@@ -3,8 +3,10 @@ extends KinematicBody2D
 onready var NODE_ANIMATED_SPRITE = $AnimatedSprite
 onready var NODE_COLLISION_2D = $CollisionShape2D
 onready var NODE_CAMERA_2D = $Camera2D
+onready var NODE_RAYCAST_MOB = $RayCastMob
 onready var NODE_RAYCAST_FOG = $RayCastFog
 onready var NODE_RAYCAST_COLLIDE = $RayCastCollide
+onready var NODE_SOUND = $Sound
 onready var NODE_TWEEN = $Tween
 onready var NODE_MAIN = self
 
@@ -32,14 +34,14 @@ var PLAYER_ACTION_INPUT = false
 # STATS
 #---------------------------------------------------------------------------------------
 var stat_visibility:int = 2
-var stat_ranged_dmg:int = 2
-var stat_melee_dmg:int = 5
+var stat_ranged_dmg:int = 4
+var stat_melee_dmg:int = 2
 var stat_ambition:int = 3
 
 var stat_shield:int = 0
 var stat_health:int = 10
 var stat_speed:int = 1
-var stat_ammo:int = 10
+var stat_ammo:int = 6
 
 var hit_pos
 var vis_color = Color(.867, .91, .247, 0.1)
@@ -66,12 +68,12 @@ func _ready():
 	pass
 
 func _unhandled_input(key):
-	if NODE_TWEEN.is_active(): 
+	if NODE_TWEEN.is_active():
 		return
 	for input in INPUT_LIST.values():
 		if key.is_action_pressed(input):
+			print(PLAYER_ACTION_SHOOT)
 			if Global.GAME_STATE == Global.GAME_STATE_LIST.STATE_PLAYER_TURN:
-
 				if PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == false:
 					if input == INPUT_LIST.UI_UP:    action_collision_check(Vector2.UP)
 					if input == INPUT_LIST.UI_DOWN:  action_collision_check(Vector2.DOWN)
@@ -150,7 +152,10 @@ func action_shoot(direction):
 					if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 					
 					NODE_MAIN.calculate_ranged_damage(self,collider)
+					action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
 					NODE_MAIN.stat_ammo -= 1
+					NODE_SOUND.stream = Sound.sfx_shoot
+					NODE_SOUND.play()
 					done = true
 
 			if collider.get_class() == "StaticBody2D":
@@ -159,9 +164,11 @@ func action_shoot(direction):
 			if collider.get_class() == "TileMap": 
 				done = true
 
+	yield(NODE_TWEEN,"tween_all_completed")
 	NODE_RAYCAST_COLLIDE.clear_exceptions()
 	PLAYER_ACTION_SHOOT = false
 	PLAYER_ACTION_INPUT = false
+	check_turn()
 
 func action_pick(direction):
 	PLAYER_ACTION_INPUT = true
@@ -175,9 +182,10 @@ func action_pick(direction):
 		var collider = NODE_RAYCAST_COLLIDE.get_collider()
 		if collider.get_class() == "StaticBody2D":
 			if collider.is_in_group(Global.GROUPS.ITEM) == true:
+						collider.on_pickup()
+						yield(collider.NODE_SOUND,"finished")
 						Global.LEVEL_LAYER_LOGIC.remove_child(collider)
 						collider.queue_free()
-						stat_ammo += 1
 						check_turn()
 						
 	PLAYER_ACTION_INPUT = false
@@ -191,7 +199,8 @@ func action_move(direction):
 	if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 	
 	NODE_MAIN.action_move_tween(cellA,cellB)
-	$Sound.play()
+	NODE_SOUND.stream = Sound.sfx_move
+	NODE_SOUND.play()
 	yield(NODE_TWEEN,"tween_all_completed")
 	Global.LEVEL_LAYER_LOGIC.fog_update()
 	check_turn()
@@ -211,18 +220,21 @@ func action_attack(direction,collider):
 	NODE_MAIN.z_index -= 1
 	check_turn()
 
-func raycast_cast_to(cell_start,cell_finish):
+func raycast_cast_to(node_name,cell_start,cell_finish):
 	var cell_cast_to = Vector2(((cell_finish.x-cell_start.x)*grid_size),((cell_finish.y-cell_start.y)*grid_size))
-	NODE_RAYCAST_FOG.cast_to = Vector2(cell_cast_to.x,cell_cast_to.y)
-	NODE_RAYCAST_FOG.force_raycast_update()
+	node_name.cast_to = Vector2(cell_cast_to.x,cell_cast_to.y)
+	node_name.force_raycast_update()
 
 func action_finish():
 	yield(get_tree(),"idle_frame")
 	pass
 
 func check_ammo():
-	if stat_ammo >= 1:
+	if stat_ammo >= 1 && PLAYER_ACTION_SHOOT == false:
 		PLAYER_ACTION_SHOOT = true
+	elif stat_ammo == 0 && PLAYER_ACTION_SHOOT == false:
+		NODE_SOUND.stream = Sound.sfx_noammo
+		NODE_SOUND.play()
 	else:
 		pass
 
@@ -282,3 +294,29 @@ func action_attack_tween(start,finish):
 	NODE_TWEEN.start()
 	yield(NODE_TWEEN,"tween_completed")
 	NODE_TWEEN.emit_signal("tween_all_completed")
+
+func action_shoot_tween(start,finish):
+	
+	print("VECTOR INFORMATION")
+	print("----------------------------")
+	print(start)
+	print(finish)
+	print(start - finish)
+	print("----------------------------")
+	
+	if start - finish == Vector2(0,-grid_size): finish = Vector2(finish.x,finish.y-(grid_size/2))
+	if start - finish == Vector2(grid_size,0):  finish = Vector2((grid_size/2)+finish.x,finish.y)
+	if start - finish == Vector2(-grid_size,0): finish = Vector2(finish.x-(grid_size/2),finish.y)
+	if start - finish == Vector2(0,grid_size):  finish = Vector2(finish.x,finish.y+(grid_size/2))
+	
+	NODE_TWEEN.interpolate_property(self,"position",start,finish,0.5/tween_speed)
+	NODE_TWEEN.start()
+	yield(NODE_TWEEN,"tween_completed")
+	NODE_TWEEN.interpolate_property(self,"position",finish,start,1.0/tween_speed)
+	NODE_TWEEN.start()
+	yield(NODE_TWEEN,"tween_completed")
+	NODE_TWEEN.emit_signal("tween_all_completed")
+
+func get_negative_vector(origin_vector, destination_vector):
+	var negative_vector = (destination_vector - origin_vector).tangent().tangent() + origin_vector
+	return Vector2(negative_vector.x,negative_vector.y)

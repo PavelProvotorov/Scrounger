@@ -158,6 +158,8 @@ func fog_fill():
 	pass
 
 func fog_update():
+	var cell_array:Array
+	
 	var player = Global.LEVEL_LAYER_LOGIC.get_node("Player")
 	var player_position = Global.LEVEL_LAYER_LOGIC.world_to_map(player.get_global_position())
 	var player_position_center = tile_to_pixel_center(player_position.x, player_position.y)
@@ -171,14 +173,15 @@ func fog_update():
 	
 	fog_fill()
 	
-	var cell_array:Array
+	#FOG SPECIFIC CHECK
+	cell_array = []
 	for x in range(0, rect_width):
 		for y in range(0, rect_height):
 			var cell = Vector2((rect_start.x + x),(rect_start.y + y))
 			cell_array.append(cell)
-	
+			
 	for cell in cell_array:
-		player.raycast_cast_to(player_position,cell)
+		player.raycast_cast_to(player.NODE_RAYCAST_FOG,player_position,cell)
 		if player.NODE_RAYCAST_FOG.is_colliding() == true:
 			var raycast_collider = player.NODE_RAYCAST_FOG.get_collider()
 			var raycast_collider_point = player.NODE_RAYCAST_FOG.get_collision_point()
@@ -186,7 +189,7 @@ func fog_update():
 			if raycast_collider == Global.LEVEL_LAYER_LOGIC:
 				Global.LAYER_FOG.set_cell(raycast_collider_position.x, raycast_collider_position.y, TILESET_FOG.TILE_NONE)
 			elif raycast_collider.is_in_group(Global.GROUPS.HOSTILE):
-				raycast_collider.AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
+#				raycast_collider.AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
 				player.NODE_RAYCAST_FOG.add_exception(raycast_collider)
 				Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 			elif raycast_collider.is_in_group(Global.GROUPS.ITEM):
@@ -194,6 +197,27 @@ func fog_update():
 				Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 		if player.NODE_RAYCAST_FOG.is_colliding() == false:
 			Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
+			
+	#MOB SPECIFIC CHECK
+	cell_array = []
+	for x in range(0, rect_width+1):
+		for y in range(0, rect_height+1):
+			var cell = Vector2((rect_start.x + x),(rect_start.y + y))
+			cell_array.append(cell)
+			
+	for cell in cell_array:
+		player.raycast_cast_to(player.NODE_RAYCAST_MOB,player_position,cell)
+		if player.NODE_RAYCAST_MOB.is_colliding() == true:
+			var raycast_collider = player.NODE_RAYCAST_MOB.get_collider()
+			var raycast_collider_point = player.NODE_RAYCAST_MOB.get_collision_point()
+			var raycast_collider_position = self.world_to_map(raycast_collider_point)
+			if raycast_collider == Global.LEVEL_LAYER_LOGIC:
+				continue
+			elif raycast_collider.is_in_group(Global.GROUPS.HOSTILE):
+				raycast_collider.AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
+				player.NODE_RAYCAST_MOB.add_exception(raycast_collider)
+		if player.NODE_RAYCAST_MOB.is_colliding() == false:
+			continue
 
 func tile_to_pixel_center(x,y):
 	return Vector2((x+0.5)*tile_size,(y+0.5)*tile_size)

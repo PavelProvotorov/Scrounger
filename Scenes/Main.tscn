@@ -108,7 +108,6 @@ margin_bottom = 16.0
 [node name="GUI_LAYER_MAIN" type="CanvasLayer" parent="GUI"]
 
 [node name="UI_MAIN" type="TextureRect" parent="GUI/GUI_LAYER_MAIN"]
-visible = false
 margin_right = 256.0
 margin_bottom = 144.0
 texture = ExtResource( 3 )
