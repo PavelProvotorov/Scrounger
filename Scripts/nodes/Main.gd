@@ -33,7 +33,7 @@ func _ready():
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
 	level_entrance = Global.LEVEL_LAYER_LOGIC.get_used_cells_by_id(Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_ENTRANCE)
 #	level_mob_spawn("Grunt",level_entrance[0]+Vector2.UP)
-	level_item_spawn("Ammo",level_entrance[0]+Vector2.UP)
+#	level_item_spawn("Ammo",level_entrance[0]+Vector2.UP)
 #	level_item_spawn("Ammo",level_entrance[0])
 	level_mob_spawn("Player",level_entrance[0])
 #	level_mob_spawn("Player",Vector2(14,5))

@@ -209,7 +209,6 @@ func fog_update():
 			var cell = Vector2((rect_start.x + x),(rect_start.y + y))
 			cell_array.append(cell)
 			
-	print(cell_array)
 	for cell in cell_array:
 		player.raycast_cast_to(player.NODE_RAYCAST_MOB,player_position,cell)
 		player.NODE_RAYCAST_MOB.force_raycast_update()
@@ -219,6 +218,8 @@ func fog_update():
 			var raycast_collider_position = self.world_to_map(raycast_collider_point)
 			if raycast_collider == Global.LEVEL_LAYER_LOGIC:
 				pass
+			elif raycast_collider.is_in_group(Global.GROUPS.ITEM):
+				player.NODE_RAYCAST_FOG.add_exception(raycast_collider)
 			elif raycast_collider.is_in_group(Global.GROUPS.HOSTILE):
 				print(raycast_collider)
 				raycast_collider.AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
@@ -255,6 +256,7 @@ func bsp_generator():
 	bsp_generator_add_passage()
 	bsp_generator_add_vents()
 	bsp_generator_add_mobs()
+	bsp_generator_add_items()
 
 	# SET TEXTURES FOR TILES
 	tilemap_texture_set_random(TILESET_BASE.TILE_DOOR_CLOSED,TILESET_LOGIC.TILE_DOOR)
@@ -490,7 +492,7 @@ func bsp_generator_add_vents():
 		walls_array.erase(tile)
 
 func bsp_generator_add_mobs():
-	var mob_list = Mobs.MOB_LIST[level_floor].keys()
+	var mob_list = Data.MOB_LIST[level_floor].keys()
 	
 	free_cells = []
 	for room in rooms_array:
@@ -500,32 +502,41 @@ func bsp_generator_add_mobs():
 	
 	var mob_count  = (round(free_cells.size()/(rand_range(5,8))))
 	
-	print(Mobs.MOB_LIST[level_floor]["Grunt"])
-	print(mob_list)
-	print(mob_count)
-	
 	for mob in mob_count:
 		randomize()
 		var cell = free_cells[randi() % free_cells.size()]
-		
 		var mob_type = mob_list[randi() % mob_list.size()]
-		var mob_chance = Mobs.MOB_LIST[level_floor][mob_type]
-
-		Global.NODE_MAIN.level_mob_spawn(mob_type,cell)
-		free_cells.erase(cell)
-		
+		var mob_chance = Data.MOB_LIST[level_floor][mob_type]
+		var spawn_chance = util_chance(mob_chance)
+		if spawn_chance == true:
+			Global.NODE_MAIN.level_mob_spawn(mob_type,cell)
+			free_cells.erase(cell)
+		if spawn_chance == false:
+			Global.NODE_MAIN.level_mob_spawn(mob_list[0],cell)
+			free_cells.erase(cell)
 	pass
 
-func bsp_generator_add_items(items:Array):
+func bsp_generator_add_items():
+	var item_list = Data.ITEM_LIST[level_floor].keys()
+	var item_count  = (round(free_cells.size()/(rand_range(18,20))))
+
+	for item in item_count:
+		randomize()
+		var cell = free_cells[randi() % free_cells.size()]
+		var item_type = item_list[randi() % item_list.size()]
+		var item_chance = Data.ITEM_LIST[level_floor][item_type]
+		var spawn_chance = util_chance(item_chance)
+		if spawn_chance == true:
+			Global.NODE_MAIN.level_item_spawn(item_type,cell)
+			free_cells.erase(cell)
+		if spawn_chance == false:
+			pass
 	pass
 
 func bsp_generator_sort_room_vectors(rooms:Array):
 	for room in rooms:
 		room.sort()
 	return rooms_array
-
-func mob_list():
-	pass
 
 # TEXTURES TO TILES
 #---------------------------------------------------------------------------------------
