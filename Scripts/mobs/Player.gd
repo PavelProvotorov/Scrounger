@@ -142,7 +142,6 @@ func action_shoot(direction):
 			var collider = NODE_RAYCAST_COLLIDE.get_collider()
 			
 			if collider.get_class() == "KinematicBody2D":
-				print("SHOOT INTO KINEMATIC BODY")
 				if collider.is_in_group(Global.GROUPS.HOSTILE) == true: 
 					var cellA = NODE_MAIN.position
 					var cellB = NODE_MAIN.position + (direction * grid_size)
@@ -151,29 +150,28 @@ func action_shoot(direction):
 					if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
 					if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 					
-					NODE_MAIN.calculate_ranged_damage(self,collider)
 					action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
+					NODE_MAIN.calculate_ranged_damage(self,collider)
 					NODE_MAIN.stat_ammo -= 1
 					NODE_SOUND.stream = Sound.sfx_shoot
 					NODE_SOUND.play()
+					yield(NODE_TWEEN,"tween_all_completed")
 					done = true
-
-			if collider.get_class() == "StaticBody2D":
+			elif collider.get_class() == "StaticBody2D":
 				if collider.is_in_group(Global.GROUPS.ITEM) == true:
 					NODE_RAYCAST_COLLIDE.add_exception(collider)
-			if collider.get_class() == "TileMap": 
+			elif collider.get_class() == "TileMap": 
 				done = true
-
-	yield(NODE_TWEEN,"tween_all_completed")
+			else:
+				pass
 	NODE_RAYCAST_COLLIDE.clear_exceptions()
-	PLAYER_ACTION_SHOOT = false
 	PLAYER_ACTION_INPUT = false
+	PLAYER_ACTION_SHOOT = false
 	check_turn()
 
 func action_pick(direction):
 	PLAYER_ACTION_INPUT = true
 	
-	print("PICK ITEMS")
 	NODE_RAYCAST_COLLIDE.cast_to = (direction)
 	NODE_RAYCAST_COLLIDE.force_raycast_update()
 	
@@ -265,7 +263,6 @@ func calculate_ranged_damage(is_attacker,is_target):
 	if is_target.stat_health <= 0: 
 			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
 			is_target.queue_free()
-			check_turn()
 			yield(self.action_finish(),"completed")
 
 func animation_flip(is_flip_h:bool, is_flip_v:bool):
