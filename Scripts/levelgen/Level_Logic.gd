@@ -200,24 +200,31 @@ func fog_update():
 			
 	#MOB SPECIFIC CHECK
 	cell_array = []
-	for x in range(0, rect_width+1):
-		for y in range(0, rect_height+1):
+	rect_start = Vector2(player_position.x - (fog_range+1), player_position.y - (fog_range+1))
+	rect_close = Vector2(player_position.x + (fog_range+1), player_position.y + (fog_range+1))
+	rect_width = ((rect_close.x - rect_start.x)+1)
+	rect_height = ((rect_close.y - rect_start.y)+1)
+	for x in range(0, rect_width):
+		for y in range(0, rect_height):
 			var cell = Vector2((rect_start.x + x),(rect_start.y + y))
 			cell_array.append(cell)
 			
+	print(cell_array)
 	for cell in cell_array:
 		player.raycast_cast_to(player.NODE_RAYCAST_MOB,player_position,cell)
+		player.NODE_RAYCAST_MOB.force_raycast_update()
 		if player.NODE_RAYCAST_MOB.is_colliding() == true:
 			var raycast_collider = player.NODE_RAYCAST_MOB.get_collider()
 			var raycast_collider_point = player.NODE_RAYCAST_MOB.get_collision_point()
 			var raycast_collider_position = self.world_to_map(raycast_collider_point)
 			if raycast_collider == Global.LEVEL_LAYER_LOGIC:
-				continue
+				pass
 			elif raycast_collider.is_in_group(Global.GROUPS.HOSTILE):
+				print(raycast_collider)
 				raycast_collider.AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
 				player.NODE_RAYCAST_MOB.add_exception(raycast_collider)
 		if player.NODE_RAYCAST_MOB.is_colliding() == false:
-			continue
+			pass
 
 func tile_to_pixel_center(x,y):
 	return Vector2((x+0.5)*tile_size,(y+0.5)*tile_size)
@@ -483,7 +490,7 @@ func bsp_generator_add_vents():
 		walls_array.erase(tile)
 
 func bsp_generator_add_mobs():
-	var mobs_list = Mobs.MOB_LIST[level_floor].keys()
+	var mob_list = Mobs.MOB_LIST[level_floor].keys()
 	
 	free_cells = []
 	for room in rooms_array:
@@ -492,14 +499,19 @@ func bsp_generator_add_mobs():
 		pass
 	
 	var mob_count  = (round(free_cells.size()/(rand_range(5,8))))
-	var mob_name   = 1
-	var mob_chance = 1
 	
+	print(Mobs.MOB_LIST[level_floor]["Grunt"])
+	print(mob_list)
 	print(mob_count)
 	
 	for mob in mob_count:
+		randomize()
 		var cell = free_cells[randi() % free_cells.size()]
-		Global.NODE_MAIN.level_mob_spawn("Grunt",cell)
+		
+		var mob_type = mob_list[randi() % mob_list.size()]
+		var mob_chance = Mobs.MOB_LIST[level_floor][mob_type]
+
+		Global.NODE_MAIN.level_mob_spawn(mob_type,cell)
 		free_cells.erase(cell)
 		
 	pass

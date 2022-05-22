@@ -81,14 +81,13 @@ func manager_mob_actions():
 			print(moving_entity_path.size())
 			if moving_entity_path.size() > 0:
 				if moving_entity_path[1] == target_entity_position:
-#					print("ATTACK")
 					mob_action_attack(moving_entity_path[0],moving_entity_path[1])
+					Sound.play_sound(moving_entity,Sound.sfx_punch_0)
+					Sound.play_sound(target_entity,Sound.sfx_hit_0)
 					yield(self,"on_mob_action_finished")
 				elif moving_entity_path[1] != target_entity_position:
-#					print("MOVE")
 					mob_action_move(moving_entity_path[0],moving_entity_path[1])
-					moving_entity.NODE_SOUND.stream = Sound.sfx_move
-					moving_entity.NODE_SOUND.play()
+					Sound.play_sound(moving_entity,Sound.sfx_move)
 					yield(self,"on_mob_action_finished")
 			elif moving_entity_path.size() == 0:
 				mob_action_skip()

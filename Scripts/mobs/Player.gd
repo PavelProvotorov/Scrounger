@@ -16,7 +16,8 @@ const INPUT_LIST = {
 	UI_LEFT  = "ui_left",
 	UI_RIGHT = "ui_right",
 	UI_PICK  = "ui_pick",
-	UI_SHOOT = "ui_shoot"
+	UI_SHOOT = "ui_shoot",
+	UI_SKIP  = "ui_skip"
 }
 
 const ANIMATIONS= {
@@ -81,6 +82,7 @@ func _unhandled_input(key):
 					if input == INPUT_LIST.UI_RIGHT: action_collision_check(Vector2.RIGHT)
 					if input == INPUT_LIST.UI_PICK:  action_pick(Vector2(0,0))
 					if input == INPUT_LIST.UI_SHOOT: check_ammo()
+					if input == INPUT_LIST.UI_SKIP:  check_turn()
 
 				elif PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == true:
 					if input == INPUT_LIST.UI_UP:    action_shoot(Vector2.UP)
@@ -88,6 +90,7 @@ func _unhandled_input(key):
 					if input == INPUT_LIST.UI_LEFT:  action_shoot(Vector2.LEFT)
 					if input == INPUT_LIST.UI_RIGHT: action_shoot(Vector2.RIGHT)
 					if input == INPUT_LIST.UI_SHOOT: PLAYER_ACTION_SHOOT = false
+					if input == INPUT_LIST.UI_SKIP:  check_turn()
 				else:
 					pass
 
@@ -153,9 +156,10 @@ func action_shoot(direction):
 					action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
 					NODE_MAIN.calculate_ranged_damage(self,collider)
 					NODE_MAIN.stat_ammo -= 1
-					NODE_SOUND.stream = Sound.sfx_shoot
-					NODE_SOUND.play()
-					yield(NODE_TWEEN,"tween_all_completed")
+					Sound.play_sound(collider,Sound.sfx_hit_0)
+					Sound.play_sound(self,Sound.sfx_shoot)
+					yield(self.NODE_TWEEN,"tween_all_completed")
+					yield(self.NODE_SOUND,"finished")
 					done = true
 			elif collider.get_class() == "StaticBody2D":
 				if collider.is_in_group(Global.GROUPS.ITEM) == true:
@@ -197,8 +201,7 @@ func action_move(direction):
 	if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 	
 	NODE_MAIN.action_move_tween(cellA,cellB)
-	NODE_SOUND.stream = Sound.sfx_move
-	NODE_SOUND.play()
+	Sound.play_sound(self,Sound.sfx_move)
 	yield(NODE_TWEEN,"tween_all_completed")
 	Global.LEVEL_LAYER_LOGIC.fog_update()
 	check_turn()
@@ -214,6 +217,8 @@ func action_attack(direction,collider):
 	NODE_MAIN.z_index += 1
 	NODE_MAIN.calculate_melee_damage(self,collider)
 	NODE_MAIN.action_attack_tween(cellA,cellB)
+	Sound.play_sound(self,Sound.sfx_punch_0)
+	Sound.play_sound(collider,Sound.sfx_hit_0)
 	yield(NODE_TWEEN,"tween_all_completed")
 	NODE_MAIN.z_index -= 1
 	check_turn()
@@ -231,8 +236,7 @@ func check_ammo():
 	if stat_ammo >= 1 && PLAYER_ACTION_SHOOT == false:
 		PLAYER_ACTION_SHOOT = true
 	elif stat_ammo == 0 && PLAYER_ACTION_SHOOT == false:
-		NODE_SOUND.stream = Sound.sfx_noammo
-		NODE_SOUND.play()
+		Sound.play_sound(self,Sound.sfx_noammo)
 	else:
 		pass
 
@@ -293,14 +297,6 @@ func action_attack_tween(start,finish):
 	NODE_TWEEN.emit_signal("tween_all_completed")
 
 func action_shoot_tween(start,finish):
-	
-	print("VECTOR INFORMATION")
-	print("----------------------------")
-	print(start)
-	print(finish)
-	print(start - finish)
-	print("----------------------------")
-	
 	if start - finish == Vector2(0,-grid_size): finish = Vector2(finish.x,finish.y-(grid_size/2))
 	if start - finish == Vector2(grid_size,0):  finish = Vector2((grid_size/2)+finish.x,finish.y)
 	if start - finish == Vector2(-grid_size,0): finish = Vector2(finish.x-(grid_size/2),finish.y)

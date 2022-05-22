@@ -11,6 +11,5 @@ func _ready():
 
 func on_pickup():
 	Global.NODE_PLAYER.stat_ammo += count
-	NODE_SOUND.play()
-	NODE_SOUND.emit_signal("finished")
+	Sound.play_sound(self,Sound.sfx_pickup)
 	pass
