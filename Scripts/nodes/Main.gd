@@ -31,23 +31,7 @@ signal on_mob_action_finished
 func _ready():
 	level_load("Level_Empty")
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
-	level_entrance = Global.LEVEL_LAYER_LOGIC.get_used_cells_by_id(Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_ENTRANCE)
-#	level_mob_spawn("Grunt",level_entrance[0]+Vector2.UP)
-#	level_item_spawn("Ammo",level_entrance[0]+Vector2.UP)
-#	level_item_spawn("Ammo",level_entrance[0])
-	level_mob_spawn("Player",level_entrance[0])
-#	level_mob_spawn("Player",Vector2(14,5))
-#	level_mob_spawn("Grunt",Vector2(13,9))
-#	level_mob_spawn("Grunt",Vector2(6,3))
-#	level_mob_spawn("Grunt",Vector2(7,5))
-#	level_mob_spawn("Grunt",Vector2(10,9))
 	Global.LEVEL_LAYER_LOGIC.astar_build()
-	
-	Global.LEVEL_LAYER_LOGIC.fog_fill()
-	Global.LEVEL_LAYER_LOGIC.fog_update()
-	
-	target_entity = Global.LEVEL_LAYER_LOGIC.get_node("Player")
-#	print_tree_pretty()
 	pass
 
 # MOB BEHAVIOUR

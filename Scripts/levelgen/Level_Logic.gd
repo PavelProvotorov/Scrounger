@@ -5,7 +5,7 @@ var tilemap_cells_radius:PoolVector2Array
 var tilemap_astar_cells:Array
 var tilemap_scan_node
 
-var tile_size = 8
+var grid_size = 8
 var map_width = 32
 var map_height = 18
 var min_width = 3
@@ -15,7 +15,7 @@ var free_cells = []
 var rooms_vents_array = []
 var rooms_array = []
 var level = []
-var level_floor = 1
+var level_floor = 0
 
 const DIRECTIONS = {
 	UP = Vector2.UP,
@@ -219,16 +219,15 @@ func fog_update():
 			if raycast_collider == Global.LEVEL_LAYER_LOGIC:
 				pass
 			elif raycast_collider.is_in_group(Global.GROUPS.ITEM):
-				player.NODE_RAYCAST_FOG.add_exception(raycast_collider)
+				player.NODE_RAYCAST_MOB.add_exception(raycast_collider)
 			elif raycast_collider.is_in_group(Global.GROUPS.HOSTILE):
-				print(raycast_collider)
 				raycast_collider.AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
 				player.NODE_RAYCAST_MOB.add_exception(raycast_collider)
 		if player.NODE_RAYCAST_MOB.is_colliding() == false:
 			pass
 
 func tile_to_pixel_center(x,y):
-	return Vector2((x+0.5)*tile_size,(y+0.5)*tile_size)
+	return Vector2((x+0.5)*grid_size,(y+0.5)*grid_size)
 
 # BSP GENERATOR
 #---------------------------------------------------------------------------------------
@@ -236,6 +235,7 @@ func bsp_generator():
 	randomize()
 	
 	# PREPARE TILEMAP
+	bsp_generator_prepare()
 	bsp_generator_fill()
 	bsp_generator_add_border()
 	bsp_generator_subdivide(1, 1, map_width - 2, map_height - 2)
@@ -268,7 +268,18 @@ func bsp_generator():
 	tilemap_texture_set_random(TILESET_BASE.TILE_ENTRANCE,TILESET_LOGIC.TILE_ENTRANCE)
 #	Global.LEVEL_LAYER_BASE.update_bitmask_region()
 
-#LOGIC_TILES.TILE_EMPTY = Global.LEVEL_LAYER_LOGIC.get_tileset().find_tile_by_name("TILE_EMPTY")
+# BSP GENERATOR 
+#---------------------------------------------------------------------------------------
+func bsp_generator_prepare():
+	level_floor += 1
+	
+	for child in Global.LEVEL_LAYER_LOGIC.get_children():
+		if child.is_in_group(Global.GROUPS.HOSTILE):
+			child.queue_free()
+			Global.LEVEL_LAYER_LOGIC.remove_child(child)
+		elif child.is_in_group(Global.GROUPS.ITEM):
+			child.queue_free()
+			Global.LEVEL_LAYER_LOGIC.remove_child(child)
 
 func bsp_generator_fill():
 	for x in range(0, map_width):
@@ -455,10 +466,8 @@ func bsp_generator_add_passage():
 	#ADD ENTRANCE
 	room = (rooms_array[rand_range(0,rooms_array.size())])
 	room.shuffle()
-#	tile = (room[randi() % room.size()])
 
 	for cell in room:
-#		if get_cellv(cell) != TILESET_LOGIC.TILE_FLOOR: continue
 		var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
 		if count == 0:
 			rooms_array.erase(room)
@@ -468,15 +477,27 @@ func bsp_generator_add_passage():
 	#ADD EXIT
 	room = (rooms_array[rand_range(0,rooms_array.size())])
 	room.shuffle()
-#	tile = (room[randi() % room.size()])
 	
 	for cell in room:
-#		if get_cellv(cell) != TILESET_LOGIC.TILE_FLOOR: continue
 		var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
 		if count == 0:
 			room.erase(cell)
 			self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_EXIT)
 			break
+	
+	#ADD PLAYER
+	var level_entrance = get_used_cells_by_id(TILESET_LOGIC.TILE_ENTRANCE)
+	
+	if Global.NODE_PLAYER == null:
+		Global.NODE_MAIN.level_mob_spawn("Player",level_entrance[0])
+		Global.NODE_PLAYER = self.get_child(0)
+	elif Global.NODE_PLAYER != null:
+		Global.NODE_PLAYER.position = Vector2(level_entrance[0].x*grid_size,level_entrance[0].y*grid_size)
+		pass
+		
+	Global.NODE_MAIN.target_entity = Global.NODE_PLAYER
+	Global.LEVEL_LAYER_LOGIC.fog_fill()
+	Global.LEVEL_LAYER_LOGIC.fog_update()
 
 func bsp_generator_add_vents():
 	var vent_amount = 4

@@ -459,3 +459,14 @@
 #	if get_cell(x+1, y) == TILESET_LOGIC.TILE_WALL :  cell_data.append(true)
 #	if get_cell(x+1, y) == TILESET_LOGIC.TILE_VOID :  cell_data.append(true)
 #	return cell_data
+
+#	level_entrance = Global.LEVEL_LAYER_LOGIC.get_used_cells_by_id(Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_ENTRANCE)
+#	level_mob_spawn("Grunt",level_entrance[0]+Vector2.UP)
+#	level_item_spawn("Ammo",level_entrance[0]+Vector2.UP)
+#	level_item_spawn("Ammo",level_entrance[0])
+#	level_mob_spawn("Player",level_entrance[0])
+#	level_mob_spawn("Player",Vector2(14,5))
+#	level_mob_spawn("Grunt",Vector2(13,9))
+#	level_mob_spawn("Grunt",Vector2(6,3))
+#	level_mob_spawn("Grunt",Vector2(7,5))
+#	level_mob_spawn("Grunt",Vector2(10,9))

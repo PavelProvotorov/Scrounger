@@ -80,7 +80,7 @@ func _unhandled_input(key):
 					if input == INPUT_LIST.UI_DOWN:  action_collision_check(Vector2.DOWN)
 					if input == INPUT_LIST.UI_LEFT:  action_collision_check(Vector2.LEFT)
 					if input == INPUT_LIST.UI_RIGHT: action_collision_check(Vector2.RIGHT)
-					if input == INPUT_LIST.UI_PICK:  action_pick(Vector2(0,0))
+					if input == INPUT_LIST.UI_PICK:  action_interact(Vector2(0,0))
 					if input == INPUT_LIST.UI_SHOOT: check_ammo()
 					if input == INPUT_LIST.UI_SKIP:  check_turn()
 
@@ -173,13 +173,22 @@ func action_shoot(direction):
 	PLAYER_ACTION_SHOOT = false
 	check_turn()
 
-func action_pick(direction):
+func action_interact(direction):
 	PLAYER_ACTION_INPUT = true
 	
 	NODE_RAYCAST_COLLIDE.cast_to = (direction)
 	NODE_RAYCAST_COLLIDE.force_raycast_update()
 	
-	if NODE_RAYCAST_COLLIDE.is_colliding() == false: pass
+	if NODE_RAYCAST_COLLIDE.is_colliding() == false:
+		print("NOT COLLIDING")
+		print(NODE_MAIN.position)
+		var cell_player = NODE_MAIN.position
+		var cell = Global.LEVEL_LAYER_LOGIC.get_cellv(Vector2(cell_player.x/grid_size,cell_player.y/grid_size))
+		print(cell)
+		if cell == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_EXIT:
+			Global.LEVEL_LAYER_LOGIC.bsp_generator()
+			pass
+		pass
 	if NODE_RAYCAST_COLLIDE.is_colliding() == true:
 		var collider = NODE_RAYCAST_COLLIDE.get_collider()
 		if collider.get_class() == "StaticBody2D":
@@ -189,7 +198,6 @@ func action_pick(direction):
 						Global.LEVEL_LAYER_LOGIC.remove_child(collider)
 						collider.queue_free()
 						check_turn()
-						
 	PLAYER_ACTION_INPUT = false
 
 func action_move(direction):
