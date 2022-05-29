@@ -225,7 +225,9 @@ func fog_update():
 				player.NODE_RAYCAST_MOB.add_exception(raycast_collider)
 		if player.NODE_RAYCAST_MOB.is_colliding() == false:
 			pass
-
+	
+	player.NODE_RAYCAST_MOB.clear_exceptions()
+	
 func tile_to_pixel_center(x,y):
 	return Vector2((x+0.5)*grid_size,(y+0.5)*grid_size)
 
@@ -252,9 +254,14 @@ func bsp_generator():
 	bsp_generator_clear_final()
 	bsp_generator_get_rooms()
 	
-	# ADD MISCELLANEOUS TO ROOMS
-	bsp_generator_add_passage()
+	# ADD MISC TO ROOMS
+	bsp_generator_add_middle_rooms(round(rand_range(0,3)))
+	bsp_generator_add_arks(round(rand_range(0,3)))
 	bsp_generator_add_vents()
+	bsp_generator_get_rooms()
+	bsp_generator_add_passage()
+	
+	# ADD CONTENT TO ROOMS
 	bsp_generator_add_mobs()
 	bsp_generator_add_items()
 
@@ -444,20 +451,69 @@ func bsp_generator_fill_oneway_rooms():
 			pass
 	pass
 
-func bsp_generator_fill_middle_rooms():
-	var room:Array = rooms_array[rand_range(0,rooms_array.size())]
+func bsp_generator_add_middle_rooms(amount:int):
+	randomize()
+	
+	var rooms_array_local = rooms_array
 	var cells_to_fill:Array = []
+	var room:Array = []
 	var count:int
 	
-	for cell in room:
-		count = 0
-		count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
-		count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
-		if count == 0: 
-			cells_to_fill.append(cell)
-	for i in cells_to_fill: 
-		set_cellv(i, TILESET_LOGIC.TILE_WALL)
-	pass
+	if amount != 0:
+		for i in amount:
+			rooms_array_local.shuffle()
+			room = rooms_array_local[rand_range(0,rooms_array_local.size())]
+			rooms_array_local.erase(room)
+			
+			var cells_to_check = room
+			for cell in cells_to_check:
+				count = 0
+				count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+				count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_VOID)
+				count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
+				if count == 0: 
+					rooms_array.erase(cell)
+					cells_to_fill.append(cell)
+				if count != 0:
+					pass
+		for fill in cells_to_fill: 
+			set_cellv(fill, TILESET_LOGIC.TILE_WALL)
+		pass
+	rooms_array.append(room)
+
+func bsp_generator_add_arks(amount:int):
+	randomize()
+
+	var doors_array = self.get_used_cells_by_id(TILESET_LOGIC.TILE_DOOR)
+	var count:int
+	
+	if amount != 0:
+		for i in amount:
+			doors_array.shuffle()
+			var door = (doors_array[rand_range(0,doors_array.size())])
+			doors_array.erase(door)
+			var cells_to_fill:Array = []
+			var cells_to_check:Array = [
+				(door),
+				(door + Vector2.UP*2),
+				(door + Vector2.DOWN*2),
+				(door + Vector2.LEFT*2),
+				(door + Vector2.RIGHT*2)
+			]
+
+			for cell in cells_to_check:
+				count = 0
+				count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+				count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_VOID)
+				count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
+				if count == 2: 
+					cells_to_fill.append(cell)
+			
+				if cells_to_fill.size() >= 2:
+					for fill in cells_to_fill: 
+						set_cellv(fill, TILESET_LOGIC.TILE_FLOOR)
+				else:
+					pass
 
 func bsp_generator_add_passage():
 	var tile:Vector2

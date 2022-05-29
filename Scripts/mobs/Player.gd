@@ -6,6 +6,7 @@ onready var NODE_CAMERA_2D = $Camera2D
 onready var NODE_RAYCAST_MOB = $RayCastMob
 onready var NODE_RAYCAST_FOG = $RayCastFog
 onready var NODE_RAYCAST_COLLIDE = $RayCastCollide
+onready var NODE_SOUND_DEATH = $SoundDeath
 onready var NODE_SOUND = $Sound
 onready var NODE_TWEEN = $Tween
 onready var NODE_MAIN = self
@@ -32,6 +33,14 @@ var turn_count:int
 var PLAYER_ACTION_SHOOT = false
 var PLAYER_ACTION_INPUT = false
 
+# SOUNDS
+#---------------------------------------------------------------------------------------
+var sound_on_move = Sound.sfx_move
+var sound_on_hit = Sound.sfx_hit_0
+var sound_on_ranged = Sound.sfx_shoot
+var sound_on_melee = Sound.sfx_punch_0
+var sound_on_death
+
 # STATS
 #---------------------------------------------------------------------------------------
 var stat_visibility:int = 2
@@ -42,10 +51,7 @@ var stat_ambition:int = 3
 var stat_shield:int = 0
 var stat_health:int = 10
 var stat_speed:int = 1
-var stat_ammo:int = 6
-
-var hit_pos
-var vis_color = Color(.867, .91, .247, 0.1)
+var stat_ammo:int = 16
 
 # READY
 #---------------------------------------------------------------------------------------
@@ -156,8 +162,7 @@ func action_shoot(direction):
 					action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
 					NODE_MAIN.calculate_ranged_damage(self,collider)
 					NODE_MAIN.stat_ammo -= 1
-					Sound.play_sound(collider,Sound.sfx_hit_0)
-					Sound.play_sound(self,Sound.sfx_shoot)
+					Sound.play_sound(self,sound_on_ranged)
 					yield(self.NODE_TWEEN,"tween_all_completed")
 					yield(self.NODE_SOUND,"finished")
 					done = true
@@ -209,7 +214,7 @@ func action_move(direction):
 	if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 	
 	NODE_MAIN.action_move_tween(cellA,cellB)
-	Sound.play_sound(self,Sound.sfx_move)
+	Sound.play_sound(self,sound_on_move)
 	yield(NODE_TWEEN,"tween_all_completed")
 	Global.LEVEL_LAYER_LOGIC.fog_update()
 	check_turn()
@@ -225,8 +230,7 @@ func action_attack(direction,collider):
 	NODE_MAIN.z_index += 1
 	NODE_MAIN.calculate_melee_damage(self,collider)
 	NODE_MAIN.action_attack_tween(cellA,cellB)
-	Sound.play_sound(self,Sound.sfx_punch_0)
-	Sound.play_sound(collider,Sound.sfx_hit_0)
+	Sound.play_sound(self,sound_on_melee)
 	yield(NODE_TWEEN,"tween_all_completed")
 	NODE_MAIN.z_index -= 1
 	check_turn()
@@ -266,16 +270,22 @@ func ui_update():
 func calculate_melee_damage(is_attacker,is_target):
 	is_target.stat_health -= is_attacker.stat_melee_dmg
 	if is_target.stat_health <= 0: 
-			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
-			is_target.queue_free()
-			yield(self.action_finish(),"completed")
+		Sound.play_sound_death(is_attacker,is_target.sound_on_death)
+		Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
+		is_target.queue_free()
+	elif is_target.stat_health > 0:
+		Sound.play_sound(is_target,is_target.sound_on_hit)
+	yield(self.action_finish(),"completed")
 
 func calculate_ranged_damage(is_attacker,is_target):
 	is_target.stat_health -= is_attacker.stat_ranged_dmg
 	if is_target.stat_health <= 0: 
-			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
-			is_target.queue_free()
-			yield(self.action_finish(),"completed")
+		Sound.play_sound_death(is_attacker,is_target.sound_on_death)
+		Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
+		is_target.queue_free()
+	elif is_target.stat_health > 0:
+		Sound.play_sound(is_target,is_target.sound_on_hit)
+	yield(self.action_finish(),"completed")
 
 func animation_flip(is_flip_h:bool, is_flip_v:bool):
 	NODE_ANIMATED_SPRITE.flip_h = is_flip_h

@@ -45,3 +45,6 @@ zoom = Vector2( 0.5, 0.5 )
 
 [node name="Sound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 2 )
+
+[node name="SoundDeath" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 2 )

@@ -126,10 +126,9 @@ autowrap = true
 clip_text = true
 
 [node name="UI_SHIELD" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-visible = false
-margin_left = 48.0
+margin_left = 64.0
 margin_top = 128.0
-margin_right = 64.0
+margin_right = 80.0
 margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
@@ -156,10 +155,9 @@ __meta__ = {
 }
 
 [node name="UI_TURN" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-visible = false
-margin_left = 192.0
+margin_left = 176.0
 margin_top = 128.0
-margin_right = 208.0
+margin_right = 192.0
 margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )

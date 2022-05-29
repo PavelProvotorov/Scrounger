@@ -470,3 +470,23 @@
 #	level_mob_spawn("Grunt",Vector2(6,3))
 #	level_mob_spawn("Grunt",Vector2(7,5))
 #	level_mob_spawn("Grunt",Vector2(10,9))
+
+#var hit_pos
+#var vis_color = Color(.867, .91, .247, 0.1)
+
+#func bsp_generator_add_middle_rooms(amount:int):
+#	randomize()
+#
+#	var room:Array = rooms_array[rand_range(0,rooms_array.size())]
+#	var cells_to_fill:Array = []
+#	var count:int
+#
+#	for cell in room:
+#		count = 0
+#		count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+#		count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
+#		if count == 0: 
+#			cells_to_fill.append(cell)
+#	for i in cells_to_fill: 
+#		set_cellv(i, TILESET_LOGIC.TILE_WALL)
+#	pass
