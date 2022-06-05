@@ -40,11 +40,11 @@ func manager_mob():
 	print("---------------------------------------------------------")
 	print("THE QUEUE SIZE IS: %s" %level_queue.size())
 	for i in (level_queue.size()):
-		print(i)
-		yield(get_tree().create_timer(0.025),"timeout")
+#		print(i)
+#		yield(get_tree().create_timer(0.025),"timeout")
 		moving_entity = Global.LEVEL_LAYER_LOGIC.get_node(level_queue[i][1])
 #		print("Currently Moving: %s" %moving_entity.name)
-		print("Currently Moving: %s" %moving_entity)
+#		print("Currently Moving: %s" %moving_entity)
 		manager_mob_actions()
 		yield(self,"on_manager_mob_actions_finished")
 
@@ -61,8 +61,8 @@ func manager_mob_actions():
 			moving_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(moving_entity.get_global_position())
 			target_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(target_entity.get_global_position())
 			moving_entity_path = Global.LEVEL_LAYER_LOGIC.astar_get_path(moving_entity_position,target_entity_position)
-			print(moving_entity_path)
-			print(moving_entity_path.size())
+#			print(moving_entity_path)
+#			print(moving_entity_path.size())
 			if moving_entity_path.size() > 0:
 				if moving_entity_path[1] == target_entity_position:
 					mob_action_attack(moving_entity_path[0],moving_entity_path[1])
@@ -70,9 +70,15 @@ func manager_mob_actions():
 					Sound.play_sound(target_entity,target_entity.sound_on_hit)
 					yield(self,"on_mob_action_finished")
 				elif moving_entity_path[1] != target_entity_position:
-					mob_action_move(moving_entity_path[0],moving_entity_path[1])
-					Sound.play_sound(moving_entity,moving_entity.sound_on_move)
-					yield(self,"on_mob_action_finished")
+					var cell_is_fog:bool = cell_is_fog(moving_entity_path[1])
+					if cell_is_fog == true:
+						mob_action_shift(moving_entity_path[0],moving_entity_path[1])
+						mob_action_skip()
+						yield(self.mob_action_skip(),"completed")
+					elif cell_is_fog == false:
+						mob_action_move(moving_entity_path[0],moving_entity_path[1])
+						Sound.play_sound(moving_entity,moving_entity.sound_on_move)
+						yield(self,"on_mob_action_finished")
 			elif moving_entity_path.size() == 0:
 				mob_action_skip()
 				yield(self.mob_action_skip(),"completed")
@@ -84,6 +90,18 @@ func manager_mob_actions():
 
 func mob_action_skip():
 	yield(get_tree(),"idle_frame")
+
+func mob_action_shift(cellA:Vector2,cellB:Vector2):
+	#MOB MOVEMENT | START
+	cellA = Vector2((cellA.x)*grid_size,(cellA.y)*grid_size)
+	cellB = Vector2((cellB.x)*grid_size,(cellB.y)*grid_size)
+	if cellA - cellB == Vector2(-grid_size,0): moving_entity.animation_flip(false,false)
+	if cellA - cellB == Vector2(grid_size,0): moving_entity.animation_flip(true,false)
+	
+	#MOB MOVEMENT | FINISH
+	moving_entity.set_global_position(cellB)
+
+	pass
 
 func mob_action_move(cellA:Vector2,cellB:Vector2):
 	#MOB MOVEMENT | START
@@ -122,6 +140,15 @@ func mob_action_attack(cellA:Vector2,cellB:Vector2):
 
 # UTILITY
 #---------------------------------------------------------------------------------------
+
+func cell_is_fog(cell:Vector2):
+	var cell_to_check = Vector2((cell.x)*grid_size,(cell.y)*grid_size)
+	cell_to_check = Global.LEVEL_LAYER_FOG.get_cellv(cell)
+	if cell_to_check == Global.LEVEL_LAYER_LOGIC.TILESET_FOG.TILE_FULL:
+		return true
+	if cell_to_check == Global.LEVEL_LAYER_LOGIC.TILESET_FOG.TILE_NONE:
+		return false
+
 func calculate_melee_damage(is_attacker,is_target):
 	is_target.stat_health -= is_attacker.stat_melee_dmg
 	if is_target.stat_health <= 0: 

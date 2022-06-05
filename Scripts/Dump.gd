@@ -490,3 +490,10 @@
 #	for i in cells_to_fill: 
 #		set_cellv(i, TILESET_LOGIC.TILE_WALL)
 #	pass
+
+#func astar_remove_mob_cells():
+#	tilemap_scan_node = Global.LEVEL_LAYER_LOGIC
+#	for i in tilemap_scan_node.get_child_count():
+#		var mobCell = tilemap_scan_node.get_child(i)
+#		mobCell = (world_to_map(mobCell.get_global_position()))
+#		tilemap_astar_cells.remove(tilemap_astar_cells.find(Vector2(mobCell.x,mobCell.y)))

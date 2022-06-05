@@ -112,13 +112,6 @@ func astar_remove_mobs(mob_current):
 		else:
 			pass
 
-func astar_remove_mob_cells():
-	tilemap_scan_node = Global.LEVEL_LAYER_LOGIC
-	for i in tilemap_scan_node.get_child_count():
-		var mobCell = tilemap_scan_node.get_child(i)
-		mobCell = (world_to_map(mobCell.get_global_position()))
-		tilemap_astar_cells.remove(tilemap_astar_cells.find(Vector2(mobCell.x,mobCell.y)))
-
 func astar_remove_extra_cells(extraPoint):
 	tilemap_astar_cells.remove(tilemap_astar_cells.find(Vector2(extraPoint.x,extraPoint.y)))
 
@@ -154,7 +147,7 @@ func uuid(point):
 func fog_fill():
 	for x in range(0, map_width):
 		for y in range(0, map_height):
-			Global.LAYER_FOG.set_cell(x, y, TILESET_FOG.TILE_FULL)
+			Global.LEVEL_LAYER_FOG.set_cell(x, y, TILESET_FOG.TILE_FULL)
 	pass
 
 func fog_update():
@@ -187,16 +180,16 @@ func fog_update():
 			var raycast_collider_point = player.NODE_RAYCAST_FOG.get_collision_point()
 			var raycast_collider_position = self.world_to_map(raycast_collider_point)
 			if raycast_collider == Global.LEVEL_LAYER_LOGIC:
-				Global.LAYER_FOG.set_cell(raycast_collider_position.x, raycast_collider_position.y, TILESET_FOG.TILE_NONE)
+				Global.LEVEL_LAYER_FOG.set_cell(raycast_collider_position.x, raycast_collider_position.y, TILESET_FOG.TILE_NONE)
 			elif raycast_collider.is_in_group(Global.GROUPS.HOSTILE):
 #				raycast_collider.AI_state = Global.AI_STATE_LIST.STATE_ENGAGE
 				player.NODE_RAYCAST_FOG.add_exception(raycast_collider)
-				Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
+				Global.LEVEL_LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 			elif raycast_collider.is_in_group(Global.GROUPS.ITEM):
 				player.NODE_RAYCAST_FOG.add_exception(raycast_collider)
-				Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
+				Global.LEVEL_LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 		if player.NODE_RAYCAST_FOG.is_colliding() == false:
-			Global.LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
+			Global.LEVEL_LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 			
 	#MOB SPECIFIC CHECK
 	cell_array = []
@@ -273,10 +266,14 @@ func bsp_generator():
 	tilemap_texture_set_random(TILESET_BASE.TILE_VENT_CLOSED,TILESET_LOGIC.TILE_VENT)
 	tilemap_texture_set_random(TILESET_BASE.TILE_EXIT,TILESET_LOGIC.TILE_EXIT)
 	tilemap_texture_set_random(TILESET_BASE.TILE_ENTRANCE,TILESET_LOGIC.TILE_ENTRANCE)
-#	Global.LEVEL_LAYER_BASE.update_bitmask_region()
+	
+	# OTHER
+	yield(self.get_idle_frame(),"completed")
+	fog_update()
 
 # BSP GENERATOR 
 #---------------------------------------------------------------------------------------
+
 func bsp_generator_prepare():
 	level_floor += 1
 	
@@ -552,8 +549,6 @@ func bsp_generator_add_passage():
 		pass
 		
 	Global.NODE_MAIN.target_entity = Global.NODE_PLAYER
-	Global.LEVEL_LAYER_LOGIC.fog_fill()
-	Global.LEVEL_LAYER_LOGIC.fog_update()
 
 func bsp_generator_add_vents():
 	var vent_amount = 4
@@ -635,6 +630,9 @@ func tilemap_texture_set_fixed(tile_base_id:int,tile_position:Vector2,id:int):
 
 # UTILITY FUNCTIONS
 #---------------------------------------------------------------------------------------
+func get_idle_frame():
+	yield(get_tree(),"idle_frame")
+
 func sort_room_vectors_custom(vector_a,vector_b):
 	if vector_a[0] > vector_b[0]:
 		return true

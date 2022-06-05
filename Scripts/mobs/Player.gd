@@ -129,7 +129,10 @@ func action_collision_check(direction):
 				if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_DOOR:
 					Global.LEVEL_LAYER_LOGIC.set_cell(collider_cell.x,collider_cell.y,Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR)
 					Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
-					action_move(direction)
+					Global.LEVEL_LAYER_LOGIC.update_dirty_quadrants()
+					yield(self.get_idle_frame(),"completed")
+					Global.LEVEL_LAYER_LOGIC.fog_update()
+					check_turn()
 					done = true
 				else:
 					done = true
@@ -185,11 +188,8 @@ func action_interact(direction):
 	NODE_RAYCAST_COLLIDE.force_raycast_update()
 	
 	if NODE_RAYCAST_COLLIDE.is_colliding() == false:
-		print("NOT COLLIDING")
-		print(NODE_MAIN.position)
 		var cell_player = NODE_MAIN.position
 		var cell = Global.LEVEL_LAYER_LOGIC.get_cellv(Vector2(cell_player.x/grid_size,cell_player.y/grid_size))
-		print(cell)
 		if cell == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_EXIT:
 			Global.LEVEL_LAYER_LOGIC.bsp_generator()
 			pass
@@ -331,3 +331,6 @@ func action_shoot_tween(start,finish):
 func get_negative_vector(origin_vector, destination_vector):
 	var negative_vector = (destination_vector - origin_vector).tangent().tangent() + origin_vector
 	return Vector2(negative_vector.x,negative_vector.y)
+
+func get_idle_frame():
+	yield(get_tree(),"idle_frame")
