@@ -9,12 +9,16 @@ var MOB_LIST = {
 	2: {
 		"Grunt": 100,
 		"Parasite": 30,
-		"Bloater": 10
+		"Bloater": 10,
+		"Sludge": 5,
+		"Goo": 10
 	},
 	3: {
-		"Grunt": 100,
+		"Grunt": 50,
 		"Parasite": 40,
-		"Bloater": 15
+		"Bloater": 20,
+		"Sludge": 15,
+		"Goo": 25
 	},
 }
 

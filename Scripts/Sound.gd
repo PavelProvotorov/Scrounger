@@ -9,6 +9,8 @@ var sfx_noammo = preload("res://Sounds/sfx_noammo.mp3")
 var sfx_death_0 = preload("res://Sounds/sfx_death_0.mp3")
 var sfx_death_1 = preload("res://Sounds/sfx_death_1.mp3")
 var sfx_death_2 = preload("res://Sounds/sfx_death_2.mp3")
+var sfx_death_3 = preload("res://Sounds/sfx_death_3.mp3")
+var sfx_death_4 = preload("res://Sounds/sfx_death_4.mp3")
 
 func play_sound(entity,sound_name):
 	entity.NODE_SOUND.stream = sound_name

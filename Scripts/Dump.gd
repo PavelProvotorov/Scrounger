@@ -497,3 +497,9 @@
 #		var mobCell = tilemap_scan_node.get_child(i)
 #		mobCell = (world_to_map(mobCell.get_global_position()))
 #		tilemap_astar_cells.remove(tilemap_astar_cells.find(Vector2(mobCell.x,mobCell.y)))
+
+#						moving_entity.connect("on_action_move_finished",self,"manager_mob_actions")
+#						yield(moving_entity.on_action_move(),"on_action_move_finished")
+#						moving_entity.connect("on_action_move_finished",Global.NODE_MAIN,"manager_mob_actions")
+
+#	Global.NODE_MAIN.connect("on_action_move_finished",self,"on_action_move")

@@ -69,26 +69,31 @@ func manager_mob_actions():
 					Sound.play_sound(moving_entity,moving_entity.sound_on_melee)
 					Sound.play_sound(target_entity,target_entity.sound_on_hit)
 					yield(self,"on_mob_action_finished")
+					moving_entity.on_action_attack()
 				elif moving_entity_path[1] != target_entity_position:
 					var cell_is_fog:bool = cell_is_fog(moving_entity_path[1])
 					if cell_is_fog == true:
 						mob_action_shift(moving_entity_path[0],moving_entity_path[1])
-						mob_action_skip()
-						yield(self.mob_action_skip(),"completed")
+						yield(self.get_idle_frame(),"completed")
+						moving_entity.on_action_move()
+						yield(moving_entity,"on_action_finished")
+						yield(self.get_idle_frame(),"completed")
 					elif cell_is_fog == false:
 						mob_action_move(moving_entity_path[0],moving_entity_path[1])
 						Sound.play_sound(moving_entity,moving_entity.sound_on_move)
 						yield(self,"on_mob_action_finished")
+						moving_entity.on_action_move()
+						yield(moving_entity,"on_action_finished")
+						yield(self.get_idle_frame(),"completed")
 			elif moving_entity_path.size() == 0:
-				mob_action_skip()
-				yield(self.mob_action_skip(),"completed")
+				yield(self.get_idle_frame(),"completed")
 	elif moving_entity.AI_state == Global.AI_STATE_LIST.STATE_IDLE: 
-		yield(self.mob_action_skip(),"completed")
+		yield(self.get_idle_frame(),"completed")
 	
 	print("< MANAGER MOB ACTIONS FINISHED >")
 	emit_signal("on_manager_mob_actions_finished")
 
-func mob_action_skip():
+func get_idle_frame():
 	yield(get_tree(),"idle_frame")
 
 func mob_action_shift(cellA:Vector2,cellB:Vector2):
@@ -160,6 +165,17 @@ func level_load(level_name:String):
 	var level_instance = level_data.instance()
 	add_child(level_instance)
 	pass
+
+func level_mob_spawn_tween(mob_name,mob_position_a:Vector2,mob_position_b:Vector2):
+	var mob_data = load("res://Mobs/%s.tscn" %mob_name)
+	var mob_instance = mob_data.instance()
+	Global.LEVEL_LAYER_LOGIC.add_child(mob_instance)
+	mob_instance.set_global_position(Vector2((mob_position_a.x)*grid_size,(mob_position_a.y)*grid_size))
+	mob_position_a = Vector2(mob_position_a.x*grid_size,mob_position_a.y*grid_size)
+	mob_position_b = Vector2(mob_position_b.x*grid_size,mob_position_b.y*grid_size)
+	mob_instance.action_move_tween(mob_position_a,mob_position_b)
+	print("mob spawn FINISHED")
+	return mob_instance
 
 func level_mob_spawn(mob_name,mob_position:Vector2):
 	var mob_data = load("res://Mobs/%s.tscn" %mob_name)

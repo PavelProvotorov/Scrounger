@@ -44,7 +44,7 @@ var sound_on_death
 # STATS
 #---------------------------------------------------------------------------------------
 var stat_visibility:int = 2
-var stat_ranged_dmg:int = 4
+var stat_ranged_dmg:int = 3
 var stat_melee_dmg:int = 2
 var stat_ambition:int = 3
 

@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://Resources/fonts/FONT_8BITWONDER_NORMAL.tres" type="DynamicFont" id=1]
 [ext_resource path="res://Resources/fonts/FONT_UpheavalPro.tres" type="DynamicFont" id=2]
 [ext_resource path="res://Assets/ui_main.png" type="Texture" id=3]
 [ext_resource path="res://Resources/styles/8BITWONDER_RUS_STYLE.tres" type="StyleBox" id=4]
+[ext_resource path="res://Scripts/Inventory.gd" type="Script" id=5]
 [ext_resource path="res://Ui/ItemSlot.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scripts/nodes/Main.gd" type="Script" id=9]
 [ext_resource path="res://Scripts/nodes/TextLog.gd" type="Script" id=11]
@@ -33,6 +34,8 @@ shader = SubResource( 1 )
 shader_param/apply = true
 shader_param/amount = 0.1
 
+[sub_resource type="Theme" id=3]
+
 [node name="Main" type="Node2D"]
 z_index = 1
 script = ExtResource( 9 )
@@ -52,55 +55,41 @@ margin_bottom = 144.0
 layer = 2
 
 [node name="Inventory" type="GridContainer" parent="GUI/GUI_LAYER_INVENTORY"]
-visible = false
-margin_left = 144.0
-margin_top = 272.0
-margin_right = 369.0
-margin_bottom = 288.0
+margin_left = 80.0
+margin_top = 128.0
+margin_right = 144.0
+margin_bottom = 144.0
+rect_min_size = Vector2( 64, 8 )
 mouse_filter = 2
 custom_constants/hseparation = 3
-columns = 12
-__meta__ = {
-"_edit_use_anchors_": false
-}
+columns = 6
+script = ExtResource( 5 )
 
 [node name="ItemSlot1" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_right = 16.0
 margin_bottom = 16.0
+theme = SubResource( 3 )
 
 [node name="ItemSlot2" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
 margin_left = 19.0
 margin_right = 35.0
 margin_bottom = 16.0
 
 [node name="ItemSlot3" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
 margin_left = 38.0
 margin_right = 54.0
 margin_bottom = 16.0
 
 [node name="ItemSlot4" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
 margin_left = 57.0
 margin_right = 73.0
 margin_bottom = 16.0
 
 [node name="ItemSlot5" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
 margin_left = 76.0
 margin_right = 92.0
 margin_bottom = 16.0
 
 [node name="ItemSlot6" parent="GUI/GUI_LAYER_INVENTORY/Inventory" instance=ExtResource( 6 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
 margin_left = 95.0
 margin_right = 111.0
 margin_bottom = 16.0
@@ -108,6 +97,7 @@ margin_bottom = 16.0
 [node name="GUI_LAYER_MAIN" type="CanvasLayer" parent="GUI"]
 
 [node name="UI_MAIN" type="TextureRect" parent="GUI/GUI_LAYER_MAIN"]
+visible = false
 margin_right = 256.0
 margin_bottom = 144.0
 texture = ExtResource( 3 )

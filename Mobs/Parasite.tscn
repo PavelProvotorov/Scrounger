@@ -22,6 +22,10 @@ position = Vector2( 4, 4 )
 z_index = 1
 shape = SubResource( 1 )
 
+[node name="RayCastCollide" type="RayCast2D" parent="."]
+position = Vector2( 4, 4 )
+cast_to = Vector2( 0, 0 )
+
 [node name="Tween" type="Tween" parent="."]
 
 [node name="Sound" type="AudioStreamPlayer2D" parent="."]
