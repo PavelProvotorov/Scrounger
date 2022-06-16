@@ -18,7 +18,13 @@ const INPUT_LIST = {
 	UI_RIGHT = "ui_right",
 	UI_PICK  = "ui_pick",
 	UI_SHOOT = "ui_shoot",
-	UI_SKIP  = "ui_skip"
+	UI_SKIP  = "ui_skip",
+	UI_1     = "ui_1",
+	UI_2     = "ui_2",
+	UI_3     = "ui_3",
+	UI_4     = "ui_4",
+	UI_5     = "ui_5",
+	UI_6     = "ui_6"
 }
 
 const ANIMATIONS= {
@@ -79,7 +85,6 @@ func _unhandled_input(key):
 		return
 	for input in INPUT_LIST.values():
 		if key.is_action_pressed(input):
-			print(PLAYER_ACTION_SHOOT)
 			if Global.GAME_STATE == Global.GAME_STATE_LIST.STATE_PLAYER_TURN:
 				if PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == false:
 					if input == INPUT_LIST.UI_UP:    action_collision_check(Vector2.UP)
@@ -89,6 +94,12 @@ func _unhandled_input(key):
 					if input == INPUT_LIST.UI_PICK:  action_interact(Vector2(0,0))
 					if input == INPUT_LIST.UI_SHOOT: check_ammo()
 					if input == INPUT_LIST.UI_SKIP:  check_turn()
+					if input == INPUT_LIST.UI_1: action_use(1,Global.GUI_SLOT_1)
+					if input == INPUT_LIST.UI_2: action_use(2,Global.GUI_SLOT_2)
+					if input == INPUT_LIST.UI_3: action_use(3,Global.GUI_SLOT_3)
+					if input == INPUT_LIST.UI_4: action_use(4,Global.GUI_SLOT_4)
+					if input == INPUT_LIST.UI_5: action_use(5,Global.GUI_SLOT_5)
+					if input == INPUT_LIST.UI_6: action_use(6,Global.GUI_SLOT_6)
 
 				elif PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == true:
 					if input == INPUT_LIST.UI_UP:    action_shoot(Vector2.UP)
@@ -186,6 +197,18 @@ func action_shoot(direction):
 	PLAYER_ACTION_SHOOT = false
 	check_turn()
 
+func action_use(slot_id,slot_ui):
+	PLAYER_ACTION_INPUT = true
+	
+	var slot = Data.INVENTORY[slot_id]
+	if slot.empty() == false:
+		var item = slot[0]
+		item.on_action_use()
+		
+	yield(self.get_idle_frame(),"completed")
+	PLAYER_ACTION_INPUT = false
+	pass
+
 func action_interact(direction):
 	PLAYER_ACTION_INPUT = true
 	
@@ -203,10 +226,11 @@ func action_interact(direction):
 		var collider = NODE_RAYCAST_COLLIDE.get_collider()
 		if collider.get_class() == "StaticBody2D":
 			if collider.is_in_group(Global.GROUPS.ITEM) == true:
-						collider.on_pickup()
-						yield(collider.NODE_SOUND,"finished")
-						Global.LEVEL_LAYER_LOGIC.remove_child(collider)
-						collider.queue_free()
+						collider.on_action_pickup()
+						yield(self.get_idle_frame(),"completed")
+#						yield(collider.NODE_SOUND,"finished")
+#						Global.LEVEL_LAYER_LOGIC.remove_child(collider)
+#						collider.queue_free()
 						check_turn()
 	PLAYER_ACTION_INPUT = false
 

@@ -627,7 +627,6 @@ func tilemap_texture_set_walls(tile_base_id:int):
 	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_BLOCK))
 	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_VOID))
 	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_VENT))
-	print(cell_array)
 	
 	#CHECK WALL FOR BLOCKS
 	for cell in cell_array:

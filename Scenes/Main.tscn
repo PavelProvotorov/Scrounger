@@ -55,10 +55,11 @@ margin_bottom = 144.0
 layer = 2
 
 [node name="Inventory" type="GridContainer" parent="GUI/GUI_LAYER_INVENTORY"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 margin_left = 80.0
 margin_top = 128.0
-margin_right = 144.0
-margin_bottom = 144.0
+margin_right = -112.0
 rect_min_size = Vector2( 64, 8 )
 mouse_filter = 2
 custom_constants/hseparation = 3
@@ -155,9 +156,6 @@ align = 1
 valign = 1
 autowrap = true
 clip_text = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Control" type="Control" parent="."]
 visible = false
