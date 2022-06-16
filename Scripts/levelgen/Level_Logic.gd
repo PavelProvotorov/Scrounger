@@ -32,18 +32,19 @@ enum TILESET_FOG {
 
 enum TILESET_BASE {
 	TILE_FLOOR       = 0,
-	TILE_WALL        = 1,
+	TILE_BLOCK        = 1,
 	TILE_DOOR_CLOSED = 2,
 	TILE_DOOR_OPEN   = 3,
 	TILE_EXIT        = 4,
 	TILE_ENTRANCE    = 5,
 	TILE_VENT_CLOSED = 6,
-	TILE_VENT_OPEN   = 7
+	TILE_VENT_OPEN   = 7,
+	TILE_WALL        = 8
 }
 
 enum TILESET_LOGIC {
 	TILE_FLOOR       = 0,
-	TILE_WALL        = 1,
+	TILE_BLOCK       = 1,
 	TILE_DOOR        = 2,
 	TILE_VENT        = 3,
 	TILE_EXIT        = 4,
@@ -132,12 +133,13 @@ func astar_connect_points():
 #Building a path between two points
 func astar_get_path(start,end):
 #	var tilemap_astar_path:PoolVector2Array
-	var tilemap_astar_path:Array
+#	var tilemap_astar_path:Array
+	var tilemap_astar_path
 	tilemap_astar_path = tilemap_astar.get_point_path(uuid(start),uuid(end))
 	return tilemap_astar_path
 	
 # Pairing function for creating unique IDs based on the Vector2 x and y coordinates
-func uuid(point):
+func uuid(point:Vector2):
 	var a = point.x
 	var b = point.y
 	return (a + b) * (a + b + 1) / 2 + b
@@ -250,7 +252,7 @@ func bsp_generator():
 	# ADD MISC TO ROOMS
 	bsp_generator_add_middle_rooms(round(rand_range(0,3)))
 	bsp_generator_add_arks(round(rand_range(0,3)))
-	bsp_generator_add_vents()
+	bsp_generator_add_vents(round(rand_range(0,3)))
 	bsp_generator_get_rooms()
 	bsp_generator_add_passage()
 	
@@ -260,12 +262,13 @@ func bsp_generator():
 
 	# SET TEXTURES FOR TILES
 	tilemap_texture_set_random(TILESET_BASE.TILE_DOOR_CLOSED,TILESET_LOGIC.TILE_DOOR)
-	tilemap_texture_set_random(TILESET_BASE.TILE_WALL,TILESET_LOGIC.TILE_VOID)
+	tilemap_texture_set_random(TILESET_BASE.TILE_BLOCK ,TILESET_LOGIC.TILE_VOID)
 	tilemap_texture_set_random(TILESET_BASE.TILE_FLOOR,TILESET_LOGIC.TILE_FLOOR)
-	tilemap_texture_set_random(TILESET_BASE.TILE_WALL,TILESET_LOGIC.TILE_WALL)
+	tilemap_texture_set_random(TILESET_BASE.TILE_BLOCK ,TILESET_LOGIC.TILE_BLOCK )
 	tilemap_texture_set_random(TILESET_BASE.TILE_VENT_CLOSED,TILESET_LOGIC.TILE_VENT)
 	tilemap_texture_set_random(TILESET_BASE.TILE_EXIT,TILESET_LOGIC.TILE_EXIT)
 	tilemap_texture_set_random(TILESET_BASE.TILE_ENTRANCE,TILESET_LOGIC.TILE_ENTRANCE)
+	tilemap_texture_set_walls(TILESET_BASE.TILE_WALL)
 	
 	# OTHER
 	yield(self.get_idle_frame(),"completed")
@@ -276,6 +279,11 @@ func bsp_generator():
 
 func bsp_generator_prepare():
 	level_floor += 1
+	
+	Global.LEVEL_LAYER_LOGIC.clear()
+	Global.LEVEL_LAYER_BASE.clear()
+	Global.LEVEL_LAYER_WALL.clear()
+	Global.LEVEL_LAYER_FOG.clear()
 	
 	for child in Global.LEVEL_LAYER_LOGIC.get_children():
 		if child.is_in_group(Global.GROUPS.HOSTILE):
@@ -295,11 +303,11 @@ func bsp_generator_fill():
 func bsp_generator_add_border():
 # Add WALL on inner border
 	for y in range(map_height):
-		set_cell(1, y, TILESET_LOGIC.TILE_WALL)
-		set_cell(map_width-2, y, TILESET_LOGIC.TILE_WALL)
+		set_cell(1, y, TILESET_LOGIC.TILE_BLOCK)
+		set_cell(map_width-2, y, TILESET_LOGIC.TILE_BLOCK)
 		for x in range(map_width):
-			set_cell(x,1, TILESET_LOGIC.TILE_WALL)
-			set_cell(x,map_height-2, TILESET_LOGIC.TILE_WALL)
+			set_cell(x,1, TILESET_LOGIC.TILE_BLOCK)
+			set_cell(x,map_height-2, TILESET_LOGIC.TILE_BLOCK)
 # Add VOID on outer border
 	for y in range(map_height):
 		set_cell(0, y, TILESET_LOGIC.TILE_VOID)
@@ -323,7 +331,7 @@ func bsp_generator_subdivide_width(x1, y1, x2, y2):
 	var x = rand_range(x1 + min_width, x2 - min_width)
 
 	for y in range(y1, y2 + 1):
-		set_cell(x, y, TILESET_LOGIC.TILE_WALL)
+		set_cell(x, y, TILESET_LOGIC.TILE_BLOCK)
 
 	bsp_generator_subdivide(x1, y1, x - 1, y2)
 	bsp_generator_subdivide(x + 1, y1, x2, y2)
@@ -341,7 +349,7 @@ func bsp_generator_subdivide_height(x1, y1, x2, y2):
 	var y = rand_range(y1 + min_width, y2 - min_width)
 
 	for x in range(x1, x2 + 1):
-		set_cell(x, y, TILESET_LOGIC.TILE_WALL)
+		set_cell(x, y, TILESET_LOGIC.TILE_BLOCK)
 
 	bsp_generator_subdivide(x1, y1, x2, y - 1)
 	bsp_generator_subdivide(x1, y + 1, x2, y2)
@@ -359,7 +367,7 @@ func bsp_generator_clear_dead_doors():
 		done = true
 		for cell in get_used_cells_by_id(TILESET_LOGIC.TILE_DOOR):
 			if get_cellv(cell) != TILESET_LOGIC.TILE_DOOR: continue
-			var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+			var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_BLOCK)
 			if count < 2:
 				set_cellv(cell,TILESET_LOGIC.TILE_FLOOR)
 				done = false
@@ -369,8 +377,8 @@ func bsp_generator_clear_dead_walls():
 	var done = false
 	while !done:
 		done = true
-		for cell in get_used_cells_by_id(TILESET_LOGIC.TILE_WALL):
-			if get_cellv(cell) != TILESET_LOGIC.TILE_WALL: continue
+		for cell in get_used_cells_by_id(TILESET_LOGIC.TILE_BLOCK):
+			if get_cellv(cell) != TILESET_LOGIC.TILE_BLOCK: continue
 			var count 
 			count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_FLOOR)
 			if count >= 3:
@@ -385,9 +393,9 @@ func bsp_generator_clear_final():
 		done = true
 		for cell in get_used_cells_by_id(TILESET_LOGIC.TILE_DOOR):
 			if get_cellv(cell) != TILESET_LOGIC.TILE_DOOR: continue
-			var wall_count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+			var wall_count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_BLOCK)
 			if wall_count >= 3:
-				set_cellv(cell, TILESET_LOGIC.TILE_WALL)
+				set_cellv(cell, TILESET_LOGIC.TILE_BLOCK)
 				done = false
 	pass
 
@@ -444,7 +452,7 @@ func bsp_generator_fill_oneway_rooms():
 	for r in rooms_oneway_array.size():
 		room = rooms_oneway_array[r]
 		for cell in room:
-			set_cell(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+			set_cell(cell.x, cell.y, TILESET_LOGIC.TILE_BLOCK)
 			pass
 	pass
 
@@ -465,7 +473,7 @@ func bsp_generator_add_middle_rooms(amount:int):
 			var cells_to_check = room
 			for cell in cells_to_check:
 				count = 0
-				count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+				count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_BLOCK)
 				count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_VOID)
 				count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
 				if count == 0: 
@@ -474,7 +482,7 @@ func bsp_generator_add_middle_rooms(amount:int):
 				if count != 0:
 					pass
 		for fill in cells_to_fill: 
-			set_cellv(fill, TILESET_LOGIC.TILE_WALL)
+			set_cellv(fill, TILESET_LOGIC.TILE_BLOCK)
 		pass
 	rooms_array.append(room)
 
@@ -500,7 +508,7 @@ func bsp_generator_add_arks(amount:int):
 
 			for cell in cells_to_check:
 				count = 0
-				count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+				count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_BLOCK)
 				count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_VOID)
 				count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
 				if count == 2: 
@@ -550,15 +558,14 @@ func bsp_generator_add_passage():
 		
 	Global.NODE_MAIN.target_entity = Global.NODE_PLAYER
 
-func bsp_generator_add_vents():
-	var vent_amount = 4
-	var cells_to_check = self.get_used_cells_by_id(TILESET_LOGIC.TILE_WALL)
+func bsp_generator_add_vents(amount:int):
+	var cells_to_check = self.get_used_cells_by_id(TILESET_LOGIC.TILE_BLOCK)
 	var walls_array = []
 	for cell in cells_to_check:
-		if get_cellv(cell) != TILESET_LOGIC.TILE_WALL: continue
+		if get_cellv(cell) != TILESET_LOGIC.TILE_BLOCK: continue
 		var count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_FLOOR)
 		if count == 1: walls_array.append(cell)
-	for i in range (0,vent_amount):
+	for i in range (0,amount):
 		var tile = walls_array[randi() % walls_array.size()]
 		self.set_cell(tile.x,tile.y,TILESET_LOGIC.TILE_VENT)
 		walls_array.erase(tile)
@@ -612,6 +619,45 @@ func bsp_generator_sort_room_vectors(rooms:Array):
 
 # TEXTURES TO TILES
 #---------------------------------------------------------------------------------------
+func tilemap_texture_set_walls(tile_base_id:int):
+	randomize()
+	var cell_array:Array
+	var cells_to_fill:Array = []
+	var tile_array = util_atlas_get_tiles(tile_base_id,Global.LEVEL_LAYER_BASE)
+	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_BLOCK))
+	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_VOID))
+	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_VENT))
+	print(cell_array)
+	
+	#CHECK WALL FOR BLOCKS
+	for cell in cell_array:
+		var cell_to_check = self.get_cellv(cell+Vector2.DOWN)
+		if cell_to_check == TILESET_LOGIC.TILE_FLOOR:
+			cells_to_fill.append(cell+Vector2.DOWN)
+			pass
+		pass
+	for cell in cells_to_fill:
+		var tile = tile_array[randi() % (tile_array.size()-2)]
+		Global.LEVEL_LAYER_WALL.set_cell(cell.x,cell.y,tile_base_id,false,false,false,tile)
+		pass
+	pass
+	
+	#CHECK WALL FOR DOORS
+	cell_array = []
+	cells_to_fill = []
+	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_DOOR))
+	for cell in cell_array:
+		var cell_to_check = self.get_cellv(cell+Vector2.DOWN)
+		if cell_to_check == TILESET_LOGIC.TILE_FLOOR:
+			cells_to_fill.append(cell+Vector2.DOWN)
+			pass
+		pass
+	for cell in cells_to_fill:
+		var tile = tile_array[6]
+		Global.LEVEL_LAYER_WALL.set_cell(cell.x,cell.y,tile_base_id,false,false,false,tile)
+		pass
+	pass
+
 func tilemap_texture_set_random(tile_base_id:int,tile_logic_id:int):
 	randomize()
 	var cell_array = self.get_used_cells_by_id(tile_logic_id)
@@ -622,11 +668,11 @@ func tilemap_texture_set_random(tile_base_id:int,tile_logic_id:int):
 		pass
 	pass
 
-func tilemap_texture_set_fixed(tile_base_id:int,tile_position:Vector2,id:int):
+func tilemap_texture_set_fixed(layer,tile_base_id:int,tile_position:Vector2,id:int):
 	randomize()
 	var tile_array = util_atlas_get_tiles(tile_base_id,Global.LEVEL_LAYER_BASE)
 	var tile = tile_array[id]
-	Global.LEVEL_LAYER_BASE.set_cell(tile_position.x,tile_position.y,tile_base_id,false,false,false,tile)
+	layer.set_cell(tile_position.x,tile_position.y,tile_base_id,false,false,false,tile)
 
 # UTILITY FUNCTIONS
 #---------------------------------------------------------------------------------------
@@ -656,9 +702,9 @@ func util_clear_deadends():
 		for cell in get_used_cells():
 			if get_cellv(cell) != TILESET_LOGIC.TILE_FLOOR: continue
 
-			var wall_count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+			var wall_count = util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_BLOCK)
 			if wall_count == 3:
-				set_cellv(cell, TILESET_LOGIC.TILE_WALL)
+				set_cellv(cell, TILESET_LOGIC.TILE_BLOCK)
 				done = false
 	pass
 

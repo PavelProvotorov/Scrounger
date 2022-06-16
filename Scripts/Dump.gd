@@ -503,3 +503,64 @@
 #						moving_entity.connect("on_action_move_finished",Global.NODE_MAIN,"manager_mob_actions")
 
 #	Global.NODE_MAIN.connect("on_action_move_finished",self,"on_action_move")
+
+#func bsp_generator_add_coridors(amount:int):
+#	randomize()
+#
+#	var cells_to_check = self.get_used_cells_by_id(TILESET_LOGIC.TILE_WALL)
+#	var start_walls_array = []
+#	var free_walls_array = []
+#	var coridors_array = []
+#	var count
+#
+#	for cell in cells_to_check:
+#		count = 0
+#		count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_WALL)
+##		count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_VOID)
+#		if count == 4: 
+#			free_walls_array.append(cell)
+#
+#	for cell in cells_to_check:
+#		count = 0
+#		count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_FLOOR)
+#		if count == 1:
+#			start_walls_array.append(cell)
+#			pass
+#
+#	for cell in free_walls_array:
+#		self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_EMPTY)
+#		pass
+#	for cell in start_walls_array:
+#		self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_EMPTY)
+#		pass
+#
+#	for a in amount:
+#		start_walls_array.shuffle()
+#		var wall_a = start_walls_array[randi() % start_walls_array.size()]
+#		start_walls_array.erase(wall_a)
+#		var wall_b = start_walls_array[randi() % start_walls_array.size()]
+#		start_walls_array.erase(wall_b)
+#
+#		astar_clear()
+#		astar_get_cells(TILESET_LOGIC.TILE_EMPTY)
+#		astar_add_points()
+#		astar_connect_points()
+#
+#		var coridor_path = astar_get_path(wall_a,wall_b)
+#		if coridor_path.size() > 2:
+#			coridors_array.append(coridor_path)
+#		if coridor_path.size() <= 2:
+#			pass
+#
+#	print(coridors_array)
+#	for c in coridors_array.size():
+#		var coridor = coridors_array[c]
+#		print(coridor)
+#		for cell in coridor:
+#			self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_VOID)
+#		pass
+#
+#	cells_to_check = self.get_used_cells_by_id(TILESET_LOGIC.TILE_EMPTY)
+#	for cell in cells_to_check:
+#		self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_WALL)
+#		pass

@@ -90,7 +90,12 @@ z_index = 1
 tile_set = ExtResource( 3 )
 cell_size = Vector2( 8, 8 )
 format = 1
-tile_data = PoolIntArray( 655391, 0, 0 )
+
+[node name="Wall" type="TileMap" parent="."]
+z_index = 1
+tile_set = ExtResource( 3 )
+cell_size = Vector2( 8, 8 )
+format = 1
 
 [node name="Deco" type="TileMap" parent="."]
 visible = false

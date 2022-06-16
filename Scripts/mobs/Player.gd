@@ -127,8 +127,13 @@ func action_collision_check(direction):
 					NODE_RAYCAST_COLLIDE.add_exception(collider)
 			if collider.get_class() == "TileMap":
 				if collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_DOOR:
+					var cell_to_check = Global.LEVEL_LAYER_LOGIC.get_cellv(collider_cell+Vector2.DOWN)
 					Global.LEVEL_LAYER_LOGIC.set_cell(collider_cell.x,collider_cell.y,Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR)
-					Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
+					if cell_to_check == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR:
+						Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_BASE,Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
+						Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_WALL,Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_WALL,collider_cell+Vector2.DOWN,7)
+					if cell_to_check != Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_FLOOR:
+						Global.LEVEL_LAYER_LOGIC.tilemap_texture_set_fixed(Global.LEVEL_LAYER_BASE,Global.LEVEL_LAYER_LOGIC.TILESET_BASE.TILE_DOOR_OPEN,collider_cell,0)
 					Global.LEVEL_LAYER_LOGIC.update_dirty_quadrants()
 					yield(self.get_idle_frame(),"completed")
 					Global.LEVEL_LAYER_LOGIC.fog_update()
