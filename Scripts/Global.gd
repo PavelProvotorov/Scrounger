@@ -17,6 +17,10 @@ onready var GUI_SLOT_5 = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/Inventory/
 onready var GUI_SLOT_5_ICON = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/Inventory/ItemSlot5/ItemIcon")
 onready var GUI_SLOT_6 = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/Inventory/ItemSlot6")
 onready var GUI_SLOT_6_ICON = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/Inventory/ItemSlot6/ItemIcon")
+onready var GUI_WEAPON = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/EquipmentWeapon")
+onready var GUI_WEAPON_ICON = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/EquipmentWeapon/ItemIcon")
+onready var GUI_ITEM = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/EquipmentItem")
+onready var GUI_ITEM_ICON = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/EquipmentItem/ItemIcon")
 
 onready var UI_HEALTH = get_node("/root/Main/GUI/GUI_LAYER_MAIN/UI_MAIN/UI_HEALTH")
 onready var UI_SHIELD = get_node("/root/Main/GUI/GUI_LAYER_MAIN/UI_MAIN/UI_SHIELD")
@@ -62,6 +66,7 @@ const ANIMATIONS = {
 }
 const GROUPS = {
 	ITEM = "ITEM",
+	WEAPON = "WEAPON",
 	PLAYER = "PLAYER",
 	HOSTILE = "HOSTILE",
 	ALLY = "ALLY",

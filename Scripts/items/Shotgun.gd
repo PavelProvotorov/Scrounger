@@ -6,23 +6,18 @@ onready var NODE_SOUND = $Sound
 #---------------------------------------------------------------------------------------
 func _ready():
 	randomize()
-	NODE_SOUND.stream = Sound.sfx_pickup
-	count = round(rand_range(2,6))
+	stat_ranged_dmg = 3
+	stat_ammo = round(rand_range(6,10))
 	pass
 
 # ACTIONS
 #---------------------------------------------------------------------------------------
 func on_action_pickup():
-	item_pickup_consumable()
+	item_pickup_weapon()
 	yield(self.get_idle_frame(),"completed")
 
 func on_action_use():
-	if Data.EQUIPMENT[0].empty() == false:
-		Global.NODE_PLAYER.stat_ammo += count
-		Sound.play_sound(self,Sound.sfx_pickup)
-	
-		# REMOVE FROM INVENTORY
-		item_inventory_remove()
+	pass
 
 func on_action_tick():
 	pass

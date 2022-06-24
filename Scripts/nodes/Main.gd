@@ -32,9 +32,7 @@ func _ready():
 	level_load("Level_Empty")
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
 	Global.LEVEL_LAYER_LOGIC.astar_build()
-	print(Data.INVENTORY)
-	print(Data.INVENTORY_SLOT)
-	print(Data.INVENTORY_SLOT_ICON)
+	level_item_spawn("Shotgun",(Global.NODE_PLAYER.position/8))
 	pass
 
 # MOB BEHAVIOUR

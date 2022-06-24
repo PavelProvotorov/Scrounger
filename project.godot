@@ -8,6 +8,16 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "StaticBody2D",
+"class": "Item2D",
+"language": "GDScript",
+"path": "res://Scripts/classes/Item2D.gd"
+} ]
+_global_script_class_icons={
+"Item2D": ""
+}
+
 [application]
 
 config/name="Scrounger"

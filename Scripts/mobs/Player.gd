@@ -50,14 +50,14 @@ var sound_on_death
 # STATS
 #---------------------------------------------------------------------------------------
 var stat_visibility:int = 2
-var stat_ranged_dmg:int = 3
+var stat_ranged_dmg:int = 0
 var stat_melee_dmg:int = 2
 var stat_ambition:int = 3
 
 var stat_shield:int = 0
 var stat_health:int = 10
 var stat_speed:int = 1
-var stat_ammo:int = 16
+var stat_ammo:int = 0
 
 # READY
 #---------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ func action_use(slot_id,slot_ui):
 	if slot.empty() == false:
 		var item = slot[0]
 		item.on_action_use()
-		
+		check_turn()
 	yield(self.get_idle_frame(),"completed")
 	PLAYER_ACTION_INPUT = false
 	pass

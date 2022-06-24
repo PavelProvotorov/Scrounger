@@ -27,6 +27,9 @@ onready var INVENTORY = {
 	5: [],
 	6: []
 }
+onready var EQUIPMENT = {
+	0: [],
+}
 
 # MOBS
 #---------------------------------------------------------------------------------------
@@ -57,14 +60,20 @@ onready var MOB_LIST = {
 onready var ITEM_LIST = {
 	1: {
 		"Ammo": 100,
-		"Medkit": 75
+		"Medkit": 50,
+		"Shotgun": 15,
+		"TacticalShotgun":5
 	},
 	2: {
 		"Ammo": 100,
-		"Medkit": 50
+		"Medkit": 45,
+		"Shotgun": 10,
+		"TacticalShotgun":10
 	},
 	3: {
 		"Ammo": 100,
-		"Medkit": 25
+		"Medkit": 35,
+		"Shotgun": 5,
+		"TacticalShotgun":15
 	},
 }

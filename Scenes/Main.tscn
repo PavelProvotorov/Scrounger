@@ -59,7 +59,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 80.0
 margin_top = 128.0
-margin_right = -112.0
+margin_right = -65.0
 rect_min_size = Vector2( 64, 8 )
 mouse_filter = 2
 custom_constants/hseparation = 3
@@ -95,6 +95,18 @@ margin_left = 95.0
 margin_right = 111.0
 margin_bottom = 16.0
 
+[node name="EquipmentWeapon" parent="GUI/GUI_LAYER_INVENTORY" instance=ExtResource( 6 )]
+margin_left = 64.0
+margin_top = 128.0
+margin_right = 80.0
+margin_bottom = 144.0
+
+[node name="EquipmentItem" parent="GUI/GUI_LAYER_INVENTORY" instance=ExtResource( 6 )]
+margin_left = 176.0
+margin_top = 128.0
+margin_right = 184.0
+margin_bottom = 136.0
+
 [node name="GUI_LAYER_MAIN" type="CanvasLayer" parent="GUI"]
 
 [node name="UI_MAIN" type="TextureRect" parent="GUI/GUI_LAYER_MAIN"]
@@ -110,15 +122,14 @@ margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
 text = "0"
-align = 1
 valign = 1
 autowrap = true
 clip_text = true
 
 [node name="UI_SHIELD" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-margin_left = 64.0
+margin_left = 48.0
 margin_top = 128.0
-margin_right = 80.0
+margin_right = 64.0
 margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
@@ -136,7 +147,7 @@ margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
 text = "0"
-align = 1
+align = 2
 valign = 1
 autowrap = true
 clip_text = true
@@ -145,9 +156,9 @@ __meta__ = {
 }
 
 [node name="UI_TURN" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-margin_left = 176.0
+margin_left = 192.0
 margin_top = 128.0
-margin_right = 192.0
+margin_right = 208.0
 margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
