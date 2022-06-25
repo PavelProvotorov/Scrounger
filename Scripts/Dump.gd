@@ -564,3 +564,5 @@
 #	for cell in cells_to_check:
 #		self.set_cell(cell.x,cell.y,TILESET_LOGIC.TILE_WALL)
 #		pass
+
+#	Global.NODE_MAIN.connect("on_action_move_finished",self,"on_action_move")

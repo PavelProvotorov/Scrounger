@@ -54,10 +54,12 @@ func manager_mob():
 	pass
 
 func manager_mob_actions():
-	if moving_entity.AI_state == Global.AI_STATE_LIST.STATE_ENGAGE:
-		Global.LEVEL_LAYER_LOGIC.astar_prepare()
-		Global.LEVEL_LAYER_LOGIC.astar_remove_mobs(moving_entity)
-		Global.LEVEL_LAYER_LOGIC.astar_build()
+	Global.LEVEL_LAYER_LOGIC.astar_prepare()
+	Global.LEVEL_LAYER_LOGIC.astar_remove_mobs(moving_entity)
+	Global.LEVEL_LAYER_LOGIC.astar_build()
+
+	# ENGAGED MELEE CLASS
+	if moving_entity.AI_state == Global.AI_STATE_LIST.STATE_ENGAGE && moving_entity.AI_class == Global.AI_CLASS_LIST.CLASS_MELEE:
 		for speed in moving_entity.stat_speed:
 			moving_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(moving_entity.get_global_position())
 			target_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(target_entity.get_global_position())
@@ -88,9 +90,53 @@ func manager_mob_actions():
 						yield(self.get_idle_frame(),"completed")
 			elif moving_entity_path.size() == 0:
 				yield(self.get_idle_frame(),"completed")
+
+	# ENGAGED RANGED CLASS
+	if moving_entity.AI_state == Global.AI_STATE_LIST.STATE_ENGAGE && moving_entity.AI_class == Global.AI_CLASS_LIST.CLASS_RANGED:
+		for speed in moving_entity.stat_speed:
+			moving_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(moving_entity.get_global_position())
+			target_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(target_entity.get_global_position())
+			moving_entity_path = Global.LEVEL_LAYER_LOGIC.astar_get_path(moving_entity_position,target_entity_position)
+			if moving_entity_path.size() != 0 && moving_entity_path.size() != 3:
+				if moving_entity_path[1] == target_entity_position:
+					mob_action_attack(moving_entity_path[0],moving_entity_path[1])
+					Sound.play_sound(moving_entity,moving_entity.sound_on_melee)
+					Sound.play_sound(target_entity,target_entity.sound_on_hit)
+					yield(self,"on_mob_action_finished")
+					moving_entity.on_action_attack()
+				elif moving_entity_path[1] != target_entity_position:
+					var cell_is_fog:bool = cell_is_fog(moving_entity_path[1])
+					if cell_is_fog == true:
+						mob_action_shift(moving_entity_path[0],moving_entity_path[1])
+						yield(self.get_idle_frame(),"completed")
+						moving_entity.on_action_move()
+						yield(moving_entity,"on_action_finished")
+						yield(self.get_idle_frame(),"completed")
+					elif cell_is_fog == false:
+						mob_action_move(moving_entity_path[0],moving_entity_path[1])
+						Sound.play_sound(moving_entity,moving_entity.sound_on_move)
+						yield(self,"on_mob_action_finished")
+						moving_entity.on_action_move()
+						yield(moving_entity,"on_action_finished")
+						yield(self.get_idle_frame(),"completed")
+			elif moving_entity_path.size() == 3:
+				for direction in DIRECTION_LIST:
+					var check_direction = (moving_entity_path[0]+(direction*2))
+					if check_direction == moving_entity_path[2]:
+						mob_action_shoot(moving_entity_path[0],moving_entity_path[0]+direction)
+						Sound.play_sound(moving_entity,moving_entity.sound_on_ranged)
+						Sound.play_sound(target_entity,target_entity.sound_on_hit)
+						yield(self,"on_mob_action_finished")
+						moving_entity.on_action_attack()
+				yield(self.get_idle_frame(),"completed")
+			elif moving_entity_path.size() == 0:
+				yield(self.get_idle_frame(),"completed")
+
+	# IDLE STATE
 	elif moving_entity.AI_state == Global.AI_STATE_LIST.STATE_IDLE: 
 		yield(self.get_idle_frame(),"completed")
-	
+		
+	# COMPLETED
 	print("< MANAGER MOB ACTIONS FINISHED >")
 	emit_signal("on_manager_mob_actions_finished")
 
@@ -144,8 +190,29 @@ func mob_action_attack(cellA:Vector2,cellB:Vector2):
 	#MOB ATTACK | END
 	emit_signal("on_mob_action_finished")
 
+func mob_action_shoot(cellA:Vector2,cellB:Vector2):
+	#MOB ATTACK | START
+	cellA = Vector2((cellA.x)*grid_size,(cellA.y)*grid_size)
+	cellB = Vector2((cellB.x)*grid_size,(cellB.y)*grid_size)
+	if cellA - cellB == Vector2(-grid_size,0): moving_entity.animation_flip(false,false)
+	if cellA - cellB == Vector2(grid_size,0): moving_entity.animation_flip(true,false)
+
+	moving_entity.z_index += 1
+	calculate_ranged_damage(moving_entity,target_entity)
+	moving_entity.action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
+	
+	#MOB ATTACK | FINISH
+	yield(moving_entity.get_node("Tween"),"tween_all_completed")
+	
+	moving_entity.z_index -= 1
+	
+	#MOB ATTACK | END
+	emit_signal("on_mob_action_finished")
 # UTILITY
 #---------------------------------------------------------------------------------------
+func get_negative_vector(origin_vector, destination_vector):
+	var negative_vector = (destination_vector - origin_vector).tangent().tangent() + origin_vector
+	return Vector2(negative_vector.x,negative_vector.y)
 
 func cell_is_fog(cell:Vector2):
 	var cell_to_check = Vector2((cell.x)*grid_size,(cell.y)*grid_size)
@@ -157,6 +224,12 @@ func cell_is_fog(cell:Vector2):
 
 func calculate_melee_damage(is_attacker,is_target):
 	is_target.stat_health -= is_attacker.stat_melee_dmg
+	if is_target.stat_health <= 0: 
+			is_target.queue_free()
+			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
+
+func calculate_ranged_damage(is_attacker,is_target):
+	is_target.stat_health -= is_attacker.stat_ranged_dmg
 	if is_target.stat_health <= 0: 
 			is_target.queue_free()
 			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
@@ -175,7 +248,6 @@ func level_mob_spawn_tween(mob_name,mob_position_a:Vector2,mob_position_b:Vector
 	mob_position_a = Vector2(mob_position_a.x*grid_size,mob_position_a.y*grid_size)
 	mob_position_b = Vector2(mob_position_b.x*grid_size,mob_position_b.y*grid_size)
 	mob_instance.action_move_tween(mob_position_a,mob_position_b)
-	print("mob spawn FINISHED")
 	return mob_instance
 
 func level_mob_spawn(mob_name,mob_position:Vector2):

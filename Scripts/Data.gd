@@ -37,11 +37,13 @@ onready var MOB_LIST = {
 	1: {
 		"Grunt": 100,
 		"Parasite": 20,
+		"Hydra": 95,
 		"Bloater": 5
 	},
 	2: {
 		"Grunt": 100,
 		"Parasite": 30,
+		"Hydra": 25,
 		"Bloater": 10,
 		"Sludge": 5,
 		"Goo": 10
@@ -49,6 +51,7 @@ onready var MOB_LIST = {
 	3: {
 		"Grunt": 50,
 		"Parasite": 40,
+		"Hydra": 25,
 		"Bloater": 20,
 		"Sludge": 15,
 		"Goo": 25

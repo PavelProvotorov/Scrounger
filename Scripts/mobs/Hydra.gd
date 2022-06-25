@@ -1,7 +1,7 @@
 extends Mob2D
 
 var AI_state = Global.AI_STATE_LIST.STATE_IDLE
-var AI_class = Global.AI_CLASS_LIST.CLASS_MELEE
+var AI_class = Global.AI_CLASS_LIST.CLASS_RANGED
 
 # SOUNDS
 #---------------------------------------------------------------------------------------
@@ -9,14 +9,14 @@ var sound_on_move = Sound.sfx_move
 var sound_on_hit = Sound.sfx_hit_0
 var sound_on_ranged = Sound.sfx_shoot
 var sound_on_melee = Sound.sfx_punch_0
-var sound_on_death = Sound.sfx_death_3
+var sound_on_death = Sound.sfx_death_2
 
 # STATS
 #---------------------------------------------------------------------------------------
 var stat_ranged_dmg:int = 1
 var stat_melee_dmg:int = 1
-var stat_ambition:int = 1
-var stat_health:int = 1
+var stat_ambition:int = 3
+var stat_health:int = 2
 var stat_speed:int = 1
 var stat_ammo:int = 0
 

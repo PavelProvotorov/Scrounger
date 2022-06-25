@@ -597,7 +597,7 @@ func bsp_generator_add_mobs():
 
 func bsp_generator_add_items():
 	var item_list = Data.ITEM_LIST[level_floor].keys()
-	var item_count  = (round(free_cells.size()/(rand_range(18,20))))
+	var item_count  = (round(free_cells.size()/(rand_range(10,12))))
 
 	for item in item_count:
 		randomize()

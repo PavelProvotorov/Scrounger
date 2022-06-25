@@ -13,9 +13,15 @@ _global_script_classes=[ {
 "class": "Item2D",
 "language": "GDScript",
 "path": "res://Scripts/classes/Item2D.gd"
+}, {
+"base": "KinematicBody2D",
+"class": "Mob2D",
+"language": "GDScript",
+"path": "res://Scripts/classes/Mob2D.gd"
 } ]
 _global_script_class_icons={
-"Item2D": ""
+"Item2D": "",
+"Mob2D": ""
 }
 
 [application]
