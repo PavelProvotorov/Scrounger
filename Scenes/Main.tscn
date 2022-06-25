@@ -115,21 +115,22 @@ margin_bottom = 144.0
 texture = ExtResource( 3 )
 
 [node name="UI_HEALTH" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-margin_left = 32.0
+margin_left = 24.0
 margin_top = 128.0
 margin_right = 48.0
 margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
 text = "0"
+align = 1
 valign = 1
 autowrap = true
 clip_text = true
 
 [node name="UI_SHIELD" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-margin_left = 48.0
+margin_left = 40.0
 margin_top = 128.0
-margin_right = 64.0
+margin_right = 72.0
 margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
@@ -142,23 +143,20 @@ clip_text = true
 [node name="UI_AMMO" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
 margin_left = 208.0
 margin_top = 128.0
-margin_right = 224.0
+margin_right = 232.0
 margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )
 text = "0"
-align = 2
+align = 1
 valign = 1
 autowrap = true
 clip_text = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="UI_TURN" type="Label" parent="GUI/GUI_LAYER_MAIN/UI_MAIN"]
-margin_left = 192.0
+margin_left = 184.0
 margin_top = 128.0
-margin_right = 208.0
+margin_right = 216.0
 margin_bottom = 144.0
 rect_min_size = Vector2( 16, 16 )
 custom_fonts/font = ExtResource( 2 )

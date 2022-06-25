@@ -26,6 +26,9 @@ shape = SubResource( 1 )
 position = Vector2( 4, 4 )
 cast_to = Vector2( 0, 0 )
 
+[node name="Position2D" type="Position2D" parent="."]
+position = Vector2( 4, 4 )
+
 [node name="Tween" type="Tween" parent="."]
 
 [node name="Sound" type="AudioStreamPlayer2D" parent="."]

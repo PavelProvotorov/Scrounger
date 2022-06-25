@@ -123,6 +123,7 @@ func manager_mob_actions():
 				for direction in DIRECTION_LIST:
 					var check_direction = (moving_entity_path[0]+(direction*2))
 					if check_direction == moving_entity_path[2]:
+						level_projectile_spawn(moving_entity.projectile,moving_entity.NODE_POSITION_2D,direction,true)
 						mob_action_shoot(moving_entity_path[0],moving_entity_path[0]+direction)
 						Sound.play_sound(moving_entity,moving_entity.sound_on_ranged)
 						Sound.play_sound(target_entity,target_entity.sound_on_hit)
@@ -249,6 +250,16 @@ func level_mob_spawn_tween(mob_name,mob_position_a:Vector2,mob_position_b:Vector
 	mob_position_b = Vector2(mob_position_b.x*grid_size,mob_position_b.y*grid_size)
 	mob_instance.action_move_tween(mob_position_a,mob_position_b)
 	return mob_instance
+
+func level_projectile_spawn(projectile_name,projectile_position,projectile_direction,projectile_hit_player):
+	var projectile_data = load("res://Projectiles/%s.tscn" %projectile_name)
+	var projectile_instance = projectile_data.instance()
+	Global.LEVEL_LAYER_LOGIC.add_child(projectile_instance)
+	projectile_instance.transform = projectile_position.global_transform
+	projectile_instance.hit_player = projectile_hit_player
+	projectile_instance.direction = projectile_direction
+	projectile_instance.z_index += 3
+	pass
 
 func level_mob_spawn(mob_name,mob_position:Vector2):
 	var mob_data = load("res://Mobs/%s.tscn" %mob_name)

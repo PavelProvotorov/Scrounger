@@ -3,6 +3,7 @@ extends KinematicBody2D
 onready var NODE_ANIMATED_SPRITE = $AnimatedSprite
 onready var NODE_COLLISION_2D = $CollisionShape2D
 onready var NODE_CAMERA_2D = $Camera2D
+onready var NODE_POSITION_2D = $Position2D
 onready var NODE_RAYCAST_MOB = $RayCastMob
 onready var NODE_RAYCAST_FOG = $RayCastFog
 onready var NODE_RAYCAST_COLLIDE = $RayCastCollide
@@ -38,6 +39,10 @@ var turn_count:int
 
 var PLAYER_ACTION_SHOOT = false
 var PLAYER_ACTION_INPUT = false
+
+# SIGNALS
+#---------------------------------------------------------------------------------------
+signal on_action_finished
 
 # SOUNDS
 #---------------------------------------------------------------------------------------
@@ -177,13 +182,14 @@ func action_shoot(direction):
 					#ANIMATION FLIP CHECK
 					if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
 					if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
-					
+					Global.NODE_MAIN.level_projectile_spawn("Bullet",NODE_POSITION_2D,direction,false)
 					action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
 					NODE_MAIN.calculate_ranged_damage(self,collider)
 					NODE_MAIN.stat_ammo -= 1
 					Sound.play_sound(self,sound_on_ranged)
 					yield(self.NODE_TWEEN,"tween_all_completed")
-					yield(self.NODE_SOUND,"finished")
+					yield(self,"on_action_finished")
+#					yield(self.NODE_SOUND,"finished")
 					done = true
 			elif collider.get_class() == "StaticBody2D":
 				if collider.is_in_group(Global.GROUPS.ITEM) == true:
@@ -192,9 +198,11 @@ func action_shoot(direction):
 				done = true
 			else:
 				pass
+	yield(self.get_idle_frame(),"completed")
 	NODE_RAYCAST_COLLIDE.clear_exceptions()
 	PLAYER_ACTION_INPUT = false
 	PLAYER_ACTION_SHOOT = false
+	print("CHECKING TURN FINAL")
 	check_turn()
 
 func action_use(slot_id,slot_ui):
@@ -228,9 +236,6 @@ func action_interact(direction):
 			if collider.is_in_group(Global.GROUPS.ITEM) == true:
 						collider.on_action_pickup()
 						yield(self.get_idle_frame(),"completed")
-#						yield(collider.NODE_SOUND,"finished")
-#						Global.LEVEL_LAYER_LOGIC.remove_child(collider)
-#						collider.queue_free()
 						check_turn()
 	PLAYER_ACTION_INPUT = false
 
@@ -261,6 +266,7 @@ func action_attack(direction,collider):
 	NODE_MAIN.action_attack_tween(cellA,cellB)
 	Sound.play_sound(self,sound_on_melee)
 	yield(NODE_TWEEN,"tween_all_completed")
+#	yield(self,"on_action_finished")
 	NODE_MAIN.z_index -= 1
 	check_turn()
 
@@ -298,23 +304,34 @@ func ui_update():
 
 func calculate_melee_damage(is_attacker,is_target):
 	is_target.stat_health -= is_attacker.stat_melee_dmg
-	if is_target.stat_health <= 0: 
+	if is_target.stat_health <= 0:
+#		is_target.NODE_ANIMATED_SPRITE.hide()
+#		Sound.call_deferred("play_sound_deferred",is_target,is_target.sound_on_death)
+#		yield(is_target.NODE_SOUND,"finished")
 		Sound.play_sound_death(is_attacker,is_target.sound_on_death)
 		Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
 		is_target.queue_free()
 	elif is_target.stat_health > 0:
 		Sound.play_sound(is_target,is_target.sound_on_hit)
-	yield(self.action_finish(),"completed")
+	yield(self.get_idle_frame(),"completed")
 
 func calculate_ranged_damage(is_attacker,is_target):
 	is_target.stat_health -= is_attacker.stat_ranged_dmg
-	if is_target.stat_health <= 0: 
-		Sound.play_sound_death(is_attacker,is_target.sound_on_death)
+	if is_target.stat_health <= 0:
+		is_target.NODE_ANIMATED_SPRITE.hide()
+		Sound.call_deferred("play_sound_deferred",is_target,is_target.sound_on_death)
+#		Sound.play_sound_death(is_target,is_target.sound_on_death)
+		yield(is_target.NODE_SOUND,"finished")
 		Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
 		is_target.queue_free()
+#		yield(self.get_idle_frame(),"completed")
 	elif is_target.stat_health > 0:
-		Sound.play_sound(is_target,is_target.sound_on_hit)
-	yield(self.action_finish(),"completed")
+		Sound.call_deferred("play_sound_deferred",is_target,is_target.sound_on_hit)
+		yield(is_target.NODE_SOUND,"finished")
+#		Sound.play_sound(is_target,is_target.sound_on_hit)
+#		yield(self.get_idle_frame(),"completed")
+	yield(self.get_idle_frame(),"completed")
+	emit_signal("on_action_finished")
 
 func animation_flip(is_flip_h:bool, is_flip_v:bool):
 	NODE_ANIMATED_SPRITE.flip_h = is_flip_h

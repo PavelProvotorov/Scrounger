@@ -566,3 +566,8 @@
 #		pass
 
 #	Global.NODE_MAIN.connect("on_action_move_finished",self,"on_action_move")
+
+#func play_sound_death(entity,sound_name):
+#	entity.NODE_SOUND_DEATH.stream = sound_name
+#	entity.NODE_SOUND_DEATH.play()
+#	pass

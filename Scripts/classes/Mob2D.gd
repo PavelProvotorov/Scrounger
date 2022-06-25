@@ -1,6 +1,7 @@
 extends KinematicBody2D
 class_name Mob2D
 
+onready var NODE_POSITION_2D = $Position2D
 onready var NODE_ANIMATED_SPRITE = $AnimatedSprite
 onready var NODE_COLLISION_2D = $CollisionShape2D
 onready var NODE_RAYCAST_COLLIDE = $RayCastCollide
