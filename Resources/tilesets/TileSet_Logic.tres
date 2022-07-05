@@ -1,4 +1,4 @@
-[gd_resource type="TileSet" load_steps=7 format=2]
+[gd_resource type="TileSet" load_steps=8 format=2]
 
 [ext_resource path="res://Assets/tileset_logic.png" type="Texture" id=1]
 
@@ -16,6 +16,9 @@ points = PoolVector2Array( 7.859, 7.90308, 0.124437, 7.90308, 0.124437, 0.168516
 
 [sub_resource type="ConvexPolygonShape2D" id=10]
 points = PoolVector2Array( 0.12944, 0.168518, 7.86401, 0.168518, 7.86401, 7.90308, 0.12944, 7.90308 )
+
+[sub_resource type="ConvexPolygonShape2D" id=11]
+points = PoolVector2Array( 7.80341, 7.849, 0.122936, 7.90308, 0.0688477, 0.168518, 7.80341, 0.168518 )
 
 [resource]
 0/name = "logic_floor"
@@ -123,7 +126,7 @@ points = PoolVector2Array( 0.12944, 0.168518, 7.86401, 0.168518, 7.86401, 7.9030
 5/shape_one_way_margin = 0.0
 5/shapes = [  ]
 5/z_index = 0
-6/name = "logic_none"
+6/name = "logic_object"
 6/texture = ExtResource( 1 )
 6/tex_offset = Vector2( 0, 0 )
 6/modulate = Color( 1, 1, 1, 1 )
@@ -133,9 +136,16 @@ points = PoolVector2Array( 0.12944, 0.168518, 7.86401, 0.168518, 7.86401, 7.9030
 6/navigation_offset = Vector2( 0, 0 )
 6/shape_offset = Vector2( 0, 0 )
 6/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+6/shape = SubResource( 11 )
 6/shape_one_way = false
-6/shape_one_way_margin = 0.0
-6/shapes = [  ]
+6/shape_one_way_margin = 1.0
+6/shapes = [ {
+"autotile_coord": Vector2( 0, 0 ),
+"one_way": false,
+"one_way_margin": 1.0,
+"shape": SubResource( 11 ),
+"shape_transform": Transform2D( 1, 0, 0, 1, 0, 0 )
+} ]
 6/z_index = 0
 7/name = "logic_none"
 7/texture = ExtResource( 1 )

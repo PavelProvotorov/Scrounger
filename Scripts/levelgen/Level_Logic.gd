@@ -17,6 +17,13 @@ var rooms_array = []
 var level = []
 var level_floor = 0
 
+const DIRECTION_LIST:Array = [
+	Vector2.UP,
+	Vector2.DOWN,
+	Vector2.LEFT,
+	Vector2.RIGHT
+	]
+
 const DIRECTIONS = {
 	UP = Vector2.UP,
 	DOWN = Vector2.DOWN,
@@ -49,6 +56,7 @@ enum TILESET_LOGIC {
 	TILE_VENT        = 3,
 	TILE_EXIT        = 4,
 	TILE_ENTRANCE    = 5,
+	TILE_OBJECT      = 6,
 	TILE_EMPTY       = 14,
 	TILE_VOID        = 15
 	}
@@ -190,6 +198,10 @@ func fog_update():
 			elif raycast_collider.is_in_group(Global.GROUPS.ITEM):
 				player.NODE_RAYCAST_FOG.add_exception(raycast_collider)
 				Global.LEVEL_LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
+#			elif raycast_collider.is_in_group(Global.GROUPS.OBJECT):
+#				print("BUMP INTO OBJECT")
+#				print(raycast_collider)
+#				Global.LEVEL_LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 		if player.NODE_RAYCAST_FOG.is_colliding() == false:
 			Global.LEVEL_LAYER_FOG.set_cell(cell.x, cell.y, TILESET_FOG.TILE_NONE)
 			
@@ -259,6 +271,7 @@ func bsp_generator():
 	# ADD CONTENT TO ROOMS
 	bsp_generator_add_mobs()
 	bsp_generator_add_items()
+	bsp_generator_add_objects()
 
 	# SET TEXTURES FOR TILES
 	tilemap_texture_set_random(TILESET_BASE.TILE_DOOR_CLOSED,TILESET_LOGIC.TILE_DOOR)
@@ -290,6 +303,9 @@ func bsp_generator_prepare():
 			child.queue_free()
 			Global.LEVEL_LAYER_LOGIC.remove_child(child)
 		elif child.is_in_group(Global.GROUPS.ITEM):
+			child.queue_free()
+			Global.LEVEL_LAYER_LOGIC.remove_child(child)
+		elif child.is_in_group(Global.GROUPS.OBJECT):
 			child.queue_free()
 			Global.LEVEL_LAYER_LOGIC.remove_child(child)
 
@@ -612,6 +628,57 @@ func bsp_generator_add_items():
 			pass
 	pass
 
+func bsp_generator_add_objects():
+	var object_list = Data.OBJECT_LIST[level_floor].keys()
+	var object_count  = (round(free_cells.size()/(rand_range(10,12))))
+	
+	var cells_to_check = self.get_used_cells_by_id(TILESET_LOGIC.TILE_BLOCK)
+	var object_cells = []
+	for cell in cells_to_check:
+		var count = 0
+		var door_count = 0
+		count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_BLOCK)
+		count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_VOID)
+		count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_VENT)
+		door_count += util_check_nearby_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
+		if count == 3 && door_count == 0: 
+			object_cells.append(cell)
+	
+	cells_to_check = []
+	for cell in object_cells:
+		var count = 0
+		count += util_check_diagonal_tile_4(cell.x, cell.y, TILESET_LOGIC.TILE_FLOOR)
+		if count > 2:
+			cells_to_check.append(cell)
+#			object_cells.erase(cell)
+	
+	for cell in cells_to_check:
+		object_cells.erase(cell)
+		pass
+	
+#	for cell in object_cells:
+#		set_cellv(cell, TILESET_LOGIC.TILE_OBJECT)
+#		pass
+
+	for object in object_count:
+		randomize()
+		var cell = object_cells[randi() % object_cells.size()]
+		var object_type = object_list[randi() % object_list.size()]
+		var object_chance = Data.OBJECT_LIST[level_floor][object_type]
+		var spawn_chance = util_chance(object_chance)
+		if spawn_chance == true:
+			set_cellv(cell, TILESET_LOGIC.TILE_OBJECT)
+			Global.NODE_MAIN.level_object_spawn(object_type,cell)
+			object_cells.erase(cell)
+#			for direction in DIRECTION_LIST:
+#				var direction_to_check = get_cellv(Vector2(cell + direction))
+#				if direction_to_check == TILESET_LOGIC.TILE_OBJECT:
+#					set_cellv(Vector2(cell + direction),TILESET_LOGIC.TILE_BLOCK)
+#					object_cells.erase(Vector2(cell + direction))
+		if spawn_chance == false:
+			pass
+	pass
+
 func bsp_generator_sort_room_vectors(rooms:Array):
 	for room in rooms:
 		room.sort()
@@ -623,6 +690,7 @@ func tilemap_texture_set_walls(tile_base_id:int):
 	randomize()
 	var cell_array:Array
 	var cells_to_fill:Array = []
+	print(tile_base_id)
 	var tile_array = util_atlas_get_tiles(tile_base_id,Global.LEVEL_LAYER_BASE)
 	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_BLOCK))
 	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_VOID))
@@ -636,7 +704,7 @@ func tilemap_texture_set_walls(tile_base_id:int):
 			pass
 		pass
 	for cell in cells_to_fill:
-		var tile = tile_array[randi() % (tile_array.size()-2)]
+		var tile = tile_array[round(rand_range(0,5))]
 		Global.LEVEL_LAYER_WALL.set_cell(cell.x,cell.y,tile_base_id,false,false,false,tile)
 		pass
 	pass
@@ -653,6 +721,23 @@ func tilemap_texture_set_walls(tile_base_id:int):
 		pass
 	for cell in cells_to_fill:
 		var tile = tile_array[6]
+		Global.LEVEL_LAYER_WALL.set_cell(cell.x,cell.y,tile_base_id,false,false,false,tile)
+		pass
+	pass
+	
+	#CHECK WALL FOR OBJECTS
+	cell_array = []
+	cells_to_fill = []
+	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_OBJECT))
+	for cell in cell_array:
+		var cell_to_check = self.get_cellv(cell+Vector2.DOWN)
+		if cell_to_check == TILESET_LOGIC.TILE_FLOOR:
+			cells_to_fill.append(cell+Vector2.DOWN)
+			pass
+		pass
+	for cell in cells_to_fill:
+		var tile = tile_array[round(rand_range(8,10))]
+		print(tile)
 		Global.LEVEL_LAYER_WALL.set_cell(cell.x,cell.y,tile_base_id,false,false,false,tile)
 		pass
 	pass
@@ -735,22 +820,30 @@ func util_choose(choices):
 func util_randi_range(low, high):
 	return floor(rand_range(low, high))
 
-func util_check_nearby_tile_4(x, y, tile_id):
+func util_check_diagonal_tile_4(x, y, tile_id):
 	var count = 0
-	if get_cell(x, y-1)   == tile_id:  count += 1
-	if get_cell(x, y+1)   == tile_id:  count += 1
-	if get_cell(x-1, y)   == tile_id:  count += 1
-	if get_cell(x+1, y)   == tile_id:  count += 1
+	if self.get_cell(x+1, y+1) == tile_id:  count += 1
+	if self.get_cell(x+1, y-1) == tile_id:  count += 1
+	if self.get_cell(x-1, y+1) == tile_id:  count += 1
+	if self.get_cell(x-1, y-1) == tile_id:  count += 1
 	return count
 
-func util_check_nearby_tile_8(x, y, TILE):
+func util_check_nearby_tile_4(x, y, tile_id):
 	var count = 0
-	if self.get_cell(x, y-1)   == TILE:  count += 1
-	if self.get_cell(x, y+1)   == TILE:  count += 1
-	if self.get_cell(x-1, y)   == TILE:  count += 1
-	if self.get_cell(x+1, y)   == TILE:  count += 1
-	if self.get_cell(x+1, y+1) == TILE:  count += 1
-	if self.get_cell(x+1, y-1) == TILE:  count += 1
-	if self.get_cell(x-1, y+1) == TILE:  count += 1
-	if self.get_cell(x-1, y-1) == TILE:  count += 1
+	if self.get_cell(x, y-1)   == tile_id:  count += 1
+	if self.get_cell(x, y+1)   == tile_id:  count += 1
+	if self.get_cell(x-1, y)   == tile_id:  count += 1
+	if self.get_cell(x+1, y)   == tile_id:  count += 1
+	return count
+
+func util_check_nearby_tile_8(x, y, tile_id):
+	var count = 0
+	if self.get_cell(x, y-1)   == tile_id:  count += 1
+	if self.get_cell(x, y+1)   == tile_id:  count += 1
+	if self.get_cell(x-1, y)   == tile_id:  count += 1
+	if self.get_cell(x+1, y)   == tile_id:  count += 1
+	if self.get_cell(x+1, y+1) == tile_id:  count += 1
+	if self.get_cell(x+1, y-1) == tile_id:  count += 1
+	if self.get_cell(x-1, y+1) == tile_id:  count += 1
+	if self.get_cell(x-1, y-1) == tile_id:  count += 1
 	return count

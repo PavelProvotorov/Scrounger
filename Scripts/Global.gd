@@ -22,6 +22,9 @@ onready var GUI_WEAPON_ICON = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/Equip
 onready var GUI_ITEM = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/EquipmentItem")
 onready var GUI_ITEM_ICON = get_node("/root/Main/GUI/GUI_LAYER_INVENTORY/EquipmentItem/ItemIcon")
 
+onready var UI_TEXT = get_node("/root/Main/GUI/GUI_LAYER_MAIN/UI_TEXT")
+onready var UI_TEXTLOG = get_node("/root/Main/GUI/GUI_LAYER_MAIN/UI_TEXT/UI_TEXTLOG")
+onready var UI_MAIN = get_node("/root/Main/GUI/GUI_LAYER_MAIN/UI_MAIN")
 onready var UI_HEALTH = get_node("/root/Main/GUI/GUI_LAYER_MAIN/UI_MAIN/UI_HEALTH")
 onready var UI_SHIELD = get_node("/root/Main/GUI/GUI_LAYER_MAIN/UI_MAIN/UI_SHIELD")
 onready var UI_AMMO = get_node("/root/Main/GUI/GUI_LAYER_MAIN/UI_MAIN/UI_AMMO")
@@ -69,6 +72,7 @@ const GROUPS = {
 	WEAPON = "WEAPON",
 	PLAYER = "PLAYER",
 	HOSTILE = "HOSTILE",
+	OBJECT = "OBJECT",
 	ALLY = "ALLY",
 	NONE = "NONE"
 }

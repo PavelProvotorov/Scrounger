@@ -571,3 +571,34 @@
 #	entity.NODE_SOUND_DEATH.stream = sound_name
 #	entity.NODE_SOUND_DEATH.play()
 #	pass
+
+#	var object_cells = []
+#	for room in rooms_array:
+#		for cell in room:
+#			var count = 0
+#			count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_BLOCK)
+#			count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_VOID)
+#			count += util_check_nearby_tile_8(cell.x, cell.y, TILESET_LOGIC.TILE_DOOR)
+#			if count < 5 && count > 1: 
+#				rooms_array.erase(cell)
+#				object_cells.append(cell)
+#			if count != 0:
+#				pass
+#		pass
+
+	#CHECK WALL FOR OBJECTS
+#	cell_array = []
+#	cells_to_fill = []
+#	cell_array.append_array(self.get_used_cells_by_id(TILESET_LOGIC.TILE_OBJECT))
+#	for cell in cell_array:
+#		var cell_to_check = self.get_cellv(cell+Vector2.DOWN)
+#		if cell_to_check == TILESET_LOGIC.TILE_FLOOR:
+#			cells_to_fill.append(cell+Vector2.DOWN)
+#			pass
+#		pass
+#	for cell in cells_to_fill:
+#		var tile = tile_array[round(rand_range(7,9))]
+#		print(tile)
+#		Global.LEVEL_LAYER_WALL.set_cell(cell.x,cell.y,tile_base_id,false,false,false,tile)
+#		pass
+#	pass

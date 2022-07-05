@@ -275,6 +275,13 @@ func level_item_spawn(item_name,item_position:Vector2):
 	item_instance.set_global_position(Vector2((item_position.x)*grid_size,(item_position.y)*grid_size))
 	pass
 
+func level_object_spawn(object_name,object_position:Vector2):
+	var object_data = load("res://Objects/%s.tscn" %object_name)
+	var object_instance = object_data.instance()
+	Global.LEVEL_LAYER_LOGIC.add_child(object_instance)
+	object_instance.set_global_position(Vector2((object_position.x)*grid_size,(object_position.y)*grid_size))
+	pass
+
 func level_queue_prepare():
 	level_queue = []
 	var idx = 0

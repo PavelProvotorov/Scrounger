@@ -39,6 +39,7 @@ var turn_count:int
 
 var PLAYER_ACTION_SHOOT = false
 var PLAYER_ACTION_INPUT = false
+var PLAYER_ACTION_TEXT = false
 
 # SIGNALS
 #---------------------------------------------------------------------------------------
@@ -91,7 +92,7 @@ func _unhandled_input(key):
 	for input in INPUT_LIST.values():
 		if key.is_action_pressed(input):
 			if Global.GAME_STATE == Global.GAME_STATE_LIST.STATE_PLAYER_TURN:
-				if PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == false:
+				if PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == false && PLAYER_ACTION_TEXT == false:
 					if input == INPUT_LIST.UI_UP:    action_collision_check(Vector2.UP)
 					if input == INPUT_LIST.UI_DOWN:  action_collision_check(Vector2.DOWN)
 					if input == INPUT_LIST.UI_LEFT:  action_collision_check(Vector2.LEFT)
@@ -106,13 +107,18 @@ func _unhandled_input(key):
 					if input == INPUT_LIST.UI_5: action_use(5,Global.GUI_SLOT_5)
 					if input == INPUT_LIST.UI_6: action_use(6,Global.GUI_SLOT_6)
 
-				elif PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == true:
+				elif PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == true && PLAYER_ACTION_TEXT == false:
 					if input == INPUT_LIST.UI_UP:    action_shoot(Vector2.UP)
 					if input == INPUT_LIST.UI_DOWN:  action_shoot(Vector2.DOWN)
 					if input == INPUT_LIST.UI_LEFT:  action_shoot(Vector2.LEFT)
 					if input == INPUT_LIST.UI_RIGHT: action_shoot(Vector2.RIGHT)
 					if input == INPUT_LIST.UI_SHOOT: PLAYER_ACTION_SHOOT = false
 					if input == INPUT_LIST.UI_SKIP:  check_turn()
+				
+				elif PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == false && PLAYER_ACTION_TEXT == true:
+					Global.UI_TEXT.hide()
+					PLAYER_ACTION_TEXT = false
+					pass
 				else:
 					pass
 
@@ -155,6 +161,15 @@ func action_collision_check(direction):
 					Global.LEVEL_LAYER_LOGIC.fog_update()
 					check_turn()
 					done = true
+				elif collider_cell_id == Global.LEVEL_LAYER_LOGIC.TILESET_LOGIC.TILE_OBJECT:
+					var object_array = get_tree().get_nodes_in_group(Global.GROUPS.OBJECT)
+					for object in object_array:
+						if object.position == cellB:
+							print(object)
+							pass
+					PLAYER_ACTION_TEXT = true
+					action_textlog()
+					done = true
 				else:
 					done = true
 					
@@ -189,7 +204,6 @@ func action_shoot(direction):
 					Sound.play_sound(self,sound_on_ranged)
 					yield(self.NODE_TWEEN,"tween_all_completed")
 					yield(self,"on_action_finished")
-#					yield(self.NODE_SOUND,"finished")
 					done = true
 			elif collider.get_class() == "StaticBody2D":
 				if collider.is_in_group(Global.GROUPS.ITEM) == true:
@@ -202,8 +216,13 @@ func action_shoot(direction):
 	NODE_RAYCAST_COLLIDE.clear_exceptions()
 	PLAYER_ACTION_INPUT = false
 	PLAYER_ACTION_SHOOT = false
-	print("CHECKING TURN FINAL")
 	check_turn()
+
+func action_textlog():
+	Global.UI_TEXT.show()
+	Global.UI_TEXTLOG.text = "< We did it boyz, we got a text inside a textlog....but now what...my life feels so empty now that I have accomplished my goals...just...why is life cruel to me D: >"
+	Global.UI_TEXTLOG.show_text()
+	pass
 
 func action_use(slot_id,slot_ui):
 	PLAYER_ACTION_INPUT = true

@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Assets/obj_terminal.png" type="Texture" id=1]
+[ext_resource path="res://Sounds/sfx_pickup.mp3" type="AudioStream" id=3]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 3, 3 )
+
+[node name="Terminal" type="StaticBody2D" groups=["OBJECT"]]
+z_index = 1
+
+[node name="Sprite" type="Sprite" parent="."]
+z_index = 1
+texture = ExtResource( 1 )
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( 4, 4 )
+z_index = 1
+shape = SubResource( 1 )
+
+[node name="Sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )

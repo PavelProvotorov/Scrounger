@@ -35,20 +35,20 @@ onready var EQUIPMENT = {
 onready var MOB_LIST = {
 	1: {
 		"Grunt": 100,
-		"Parasite": 20,
-		"Hydra": 85,
-		"Bloater": 100
+		"Parasite": 35,
+		"Hydra": 15,
+		"Bloater": 5
 	},
 	2: {
 		"Grunt": 100,
-		"Parasite": 30,
-		"Hydra": 20,
+		"Parasite": 40,
+		"Hydra": 25,
 		"Bloater": 15,
 		"Goo": 5
 	},
 	3: {
 		"Grunt": 50,
-		"Parasite": 40,
+		"Parasite": 45,
 		"Hydra": 30,
 		"Bloater": 20,
 		"Sludge": 15,
@@ -76,5 +76,22 @@ onready var ITEM_LIST = {
 		"Medkit": 35,
 		"Shotgun": 5,
 		"TacticalShotgun":15
+	},
+}
+
+# OBJECTS
+#---------------------------------------------------------------------------------------
+onready var OBJECT_LIST = {
+	1: {
+		"Locker": 80,
+		"Terminal": 15
+	},
+	2: {
+		"Locker": 80,
+		"Terminal": 15
+	},
+	3: {
+		"Locker": 80,
+		"Terminal": 15
 	},
 }
