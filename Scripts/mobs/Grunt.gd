@@ -28,8 +28,9 @@ signal on_action_finished
 #---------------------------------------------------------------------------------------
 func _ready():
 	randomize()
-	NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.IDLE)
-	NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(ANIMATIONS.IDLE)))
+	var animation = get_animation(1,4)
+	NODE_ANIMATED_SPRITE.set_animation(animation)
+	NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(animation)))
 	animation_flip(randi()%2,false)
 	pass
 

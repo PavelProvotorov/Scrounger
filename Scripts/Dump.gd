@@ -602,3 +602,75 @@
 #		Global.LEVEL_LAYER_WALL.set_cell(cell.x,cell.y,tile_base_id,false,false,false,tile)
 #		pass
 #	pass
+
+#	var player_position_center = tile_to_pixel_center(player_position.x, player_position.y)
+#func tile_to_pixel_center(x,y):
+#	return Vector2((x+0.5)*grid_size,(y+0.5)*grid_size)
+
+#func _load_json(resourceFolder:String,resourceType:String):
+#	var jsonText
+#	var jsonParse
+#	var jsonFile = File.new()
+#	var jsonFileFolder = resourceFolder
+#	var jsonFileType = resourceType
+#	var jsonPathTemp = "res://Resources/%s/%s.json"
+#	var jsonPath = jsonPathTemp %[jsonFileFolder,jsonFileType]
+#	print(jsonPath)
+#
+#	jsonFile.open(jsonPath, jsonFile.READ)
+#	jsonText = jsonFile.get_as_text()
+#	jsonParse = JSON.parse(jsonText)
+#	if jsonParse.error == OK:
+#		jsonText = jsonParse.result
+#	elif jsonParse.error != OK:
+#		push_error("Error: _load_json")
+#		push_error("The error is: %s" %jsonParse.error)
+#		push_error("The line is: %s" %jsonParse.error_line)
+#		push_error("The string is: %s" %jsonParse.error_string)
+#	else:
+#		pass
+#	return jsonText
+#	pass
+
+# -------------------- PLAYER
+
+#func animation_flip(is_flip_h:bool, is_flip_v:bool):
+#	NODE_ANIMATED_SPRITE.flip_h = is_flip_h
+#	NODE_ANIMATED_SPRITE.flip_v = is_flip_v
+#
+#func animation_change(animation_type:String,is_playing:bool,is_random:bool):
+#	NODE_ANIMATED_SPRITE.set_animation(animation_type)
+#	NODE_ANIMATED_SPRITE.playing = is_playing
+#	if is_random == true:
+#		NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(animation_type)))
+#	if is_random == false:
+#		pass
+#
+#func action_move_tween(start,finish):
+#	NODE_TWEEN.interpolate_property(self,'position',start,finish,1.0/tween_speed, Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+#	NODE_TWEEN.start()
+#	yield(NODE_TWEEN,"tween_completed")
+#	NODE_TWEEN.emit_signal("tween_all_completed")
+#
+#func action_attack_tween(start,finish):
+#	NODE_TWEEN.interpolate_property(self,"position",start,finish,0.5/tween_speed)
+#	NODE_TWEEN.start()
+#	yield(NODE_TWEEN,"tween_completed")
+#	NODE_TWEEN.interpolate_property(self,"position",finish,start,1.0/tween_speed)
+#	NODE_TWEEN.start()
+#	yield(NODE_TWEEN,"tween_completed")
+#	NODE_TWEEN.emit_signal("tween_all_completed")
+#
+#func action_shoot_tween(start,finish):
+#	if start - finish == Vector2(0,-grid_size): finish = Vector2(finish.x,finish.y-(grid_size/2))
+#	if start - finish == Vector2(grid_size,0):  finish = Vector2((grid_size/2)+finish.x,finish.y)
+#	if start - finish == Vector2(-grid_size,0): finish = Vector2(finish.x-(grid_size/2),finish.y)
+#	if start - finish == Vector2(0,grid_size):  finish = Vector2(finish.x,finish.y+(grid_size/2))
+#
+#	NODE_TWEEN.interpolate_property(self,"position",start,finish,0.5/tween_speed)
+#	NODE_TWEEN.start()
+#	yield(NODE_TWEEN,"tween_completed")
+#	NODE_TWEEN.interpolate_property(self,"position",finish,start,1.0/tween_speed)
+#	NODE_TWEEN.start()
+#	yield(NODE_TWEEN,"tween_completed")
+#	NODE_TWEEN.emit_signal("tween_all_completed")

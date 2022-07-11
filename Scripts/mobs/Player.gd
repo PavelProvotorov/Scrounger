@@ -1,16 +1,16 @@
-extends KinematicBody2D
+extends Mob2D
 
-onready var NODE_ANIMATED_SPRITE = $AnimatedSprite
-onready var NODE_COLLISION_2D = $CollisionShape2D
+#onready var NODE_ANIMATED_SPRITE = $AnimatedSprite
+#onready var NODE_COLLISION_2D = $CollisionShape2D
 onready var NODE_CAMERA_2D = $Camera2D
-onready var NODE_POSITION_2D = $Position2D
+#onready var NODE_POSITION_2D = $Position2D
 onready var NODE_RAYCAST_MOB = $RayCastMob
 onready var NODE_RAYCAST_FOG = $RayCastFog
-onready var NODE_RAYCAST_COLLIDE = $RayCastCollide
+#onready var NODE_RAYCAST_COLLIDE = $RayCastCollide
 onready var NODE_SOUND_DEATH = $SoundDeath
-onready var NODE_SOUND = $Sound
-onready var NODE_TWEEN = $Tween
-onready var NODE_MAIN = self
+#onready var NODE_SOUND = $Sound
+#onready var NODE_TWEEN = $Tween
+#onready var NODE_MAIN = self
 
 const INPUT_LIST = {
 	UI_UP    = "ui_up",
@@ -27,13 +27,6 @@ const INPUT_LIST = {
 	UI_5     = "ui_5",
 	UI_6     = "ui_6"
 }
-
-const ANIMATIONS= {
-	IDLE = "IDLE"
-}
-
-const grid_size = 8
-const tween_speed = 8
 
 var turn_count:int
 
@@ -82,7 +75,7 @@ func _ready():
 	NODE_CAMERA_2D.limit_bottom = (map_limits.end.y * map_cellsize.y)
 	
 	#PREPARE STARTING ANIMATIONS
-	NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.IDLE)
+	NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.MELEE)
 	NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(ANIMATIONS.IDLE)))
 	pass
 
@@ -108,12 +101,19 @@ func _unhandled_input(key):
 					if input == INPUT_LIST.UI_6: action_use(6,Global.GUI_SLOT_6)
 
 				elif PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == true && PLAYER_ACTION_TEXT == false:
-					if input == INPUT_LIST.UI_UP:    action_shoot(Vector2.UP)
-					if input == INPUT_LIST.UI_DOWN:  action_shoot(Vector2.DOWN)
-					if input == INPUT_LIST.UI_LEFT:  action_shoot(Vector2.LEFT)
-					if input == INPUT_LIST.UI_RIGHT: action_shoot(Vector2.RIGHT)
-					if input == INPUT_LIST.UI_SHOOT: PLAYER_ACTION_SHOOT = false
-					if input == INPUT_LIST.UI_SKIP:  check_turn()
+					if input == INPUT_LIST.UI_UP:    
+						action_shoot(Vector2.UP)
+					if input == INPUT_LIST.UI_DOWN:  
+						action_shoot(Vector2.DOWN)
+					if input == INPUT_LIST.UI_LEFT:  
+						action_shoot(Vector2.LEFT)
+					if input == INPUT_LIST.UI_RIGHT: 
+						action_shoot(Vector2.RIGHT)
+					if input == INPUT_LIST.UI_SHOOT:
+						NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.MELEE)
+						PLAYER_ACTION_SHOOT = false
+					if input == INPUT_LIST.UI_SKIP:  
+						check_turn()
 				
 				elif PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == false && PLAYER_ACTION_TEXT == true:
 					Global.UI_TEXT.hide()
@@ -197,7 +197,7 @@ func action_shoot(direction):
 					#ANIMATION FLIP CHECK
 					if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
 					if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
-					Global.NODE_MAIN.level_projectile_spawn("Bullet",NODE_POSITION_2D,direction,false)
+					Global.LEVEL_LAYER_LOGIC.level_projectile_spawn("Bullet",NODE_POSITION_2D,direction,false)
 					action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
 					NODE_MAIN.calculate_ranged_damage(self,collider)
 					NODE_MAIN.stat_ammo -= 1
@@ -215,6 +215,7 @@ func action_shoot(direction):
 	yield(self.get_idle_frame(),"completed")
 	NODE_RAYCAST_COLLIDE.clear_exceptions()
 	PLAYER_ACTION_INPUT = false
+	NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.MELEE)
 	PLAYER_ACTION_SHOOT = false
 	check_turn()
 
@@ -231,6 +232,7 @@ func action_use(slot_id,slot_ui):
 	if slot.empty() == false:
 		var item = slot[0]
 		item.on_action_use()
+		yield(self.get_idle_frame(),"completed")
 		check_turn()
 	yield(self.get_idle_frame(),"completed")
 	PLAYER_ACTION_INPUT = false
@@ -300,6 +302,7 @@ func action_finish():
 
 func check_ammo():
 	if stat_ammo >= 1 && PLAYER_ACTION_SHOOT == false:
+		NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.RANGED)
 		PLAYER_ACTION_SHOOT = true
 	elif stat_ammo == 0 && PLAYER_ACTION_SHOOT == false:
 		Sound.play_sound(self,Sound.sfx_noammo)
@@ -308,12 +311,10 @@ func check_ammo():
 
 func check_turn():
 	turn_count += 1
-	if turn_count != stat_speed:
-		return
-	elif turn_count == stat_speed:
-		Global.game_state_manager(Global.GAME_STATE_LIST.STATE_MOB_TURN)
-	else:
-		pass
+	for modifier in modifier_list:
+		modifier.on_action_tick()
+	if turn_count != stat_speed: pass
+	if turn_count == stat_speed: Global.game_state_manager(Global.GAME_STATE_LIST.STATE_MOB_TURN)
 
 func ui_update():
 	Global.UI_AMMO.set_text(self.stat_ammo as String)
@@ -351,47 +352,6 @@ func calculate_ranged_damage(is_attacker,is_target):
 #		yield(self.get_idle_frame(),"completed")
 	yield(self.get_idle_frame(),"completed")
 	emit_signal("on_action_finished")
-
-func animation_flip(is_flip_h:bool, is_flip_v:bool):
-	NODE_ANIMATED_SPRITE.flip_h = is_flip_h
-	NODE_ANIMATED_SPRITE.flip_v = is_flip_v
-
-func animation_change(animation_type:String,is_playing:bool,is_random:bool):
-	NODE_ANIMATED_SPRITE.set_animation(animation_type)
-	NODE_ANIMATED_SPRITE.playing = is_playing
-	if is_random == true:
-		NODE_ANIMATED_SPRITE.set_frame(rand_range(0,NODE_ANIMATED_SPRITE.get_sprite_frames().get_frame_count(animation_type)))
-	if is_random == false:
-		pass
-
-func action_move_tween(start,finish):
-	NODE_TWEEN.interpolate_property(self,'position',start,finish,1.0/tween_speed, Tween.TRANS_SINE, Tween.EASE_IN_OUT)
-	NODE_TWEEN.start()
-	yield(NODE_TWEEN,"tween_completed")
-	NODE_TWEEN.emit_signal("tween_all_completed")
-
-func action_attack_tween(start,finish):
-	NODE_TWEEN.interpolate_property(self,"position",start,finish,0.5/tween_speed)
-	NODE_TWEEN.start()
-	yield(NODE_TWEEN,"tween_completed")
-	NODE_TWEEN.interpolate_property(self,"position",finish,start,1.0/tween_speed)
-	NODE_TWEEN.start()
-	yield(NODE_TWEEN,"tween_completed")
-	NODE_TWEEN.emit_signal("tween_all_completed")
-
-func action_shoot_tween(start,finish):
-	if start - finish == Vector2(0,-grid_size): finish = Vector2(finish.x,finish.y-(grid_size/2))
-	if start - finish == Vector2(grid_size,0):  finish = Vector2((grid_size/2)+finish.x,finish.y)
-	if start - finish == Vector2(-grid_size,0): finish = Vector2(finish.x-(grid_size/2),finish.y)
-	if start - finish == Vector2(0,grid_size):  finish = Vector2(finish.x,finish.y+(grid_size/2))
-	
-	NODE_TWEEN.interpolate_property(self,"position",start,finish,0.5/tween_speed)
-	NODE_TWEEN.start()
-	yield(NODE_TWEEN,"tween_completed")
-	NODE_TWEEN.interpolate_property(self,"position",finish,start,1.0/tween_speed)
-	NODE_TWEEN.start()
-	yield(NODE_TWEEN,"tween_completed")
-	NODE_TWEEN.emit_signal("tween_all_completed")
 
 func get_negative_vector(origin_vector, destination_vector):
 	var negative_vector = (destination_vector - origin_vector).tangent().tangent() + origin_vector

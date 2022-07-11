@@ -9,15 +9,39 @@ onready var NODE_SOUND = $Sound
 onready var NODE_TWEEN = $Tween
 onready var NODE_MAIN = self
 
-const tween_speed = 8
+var modifier_list = []
+
+const tween_speed = 10
 const grid_size = 8
 
 const ANIMATIONS= {
-	IDLE = "IDLE"
+	IDLE   = "IDLE",
+	IDLE_0 = "IDLE_0",
+	IDLE_1 = "IDLE_1",
+	IDLE_2 = "IDLE_2",
+	IDLE_3 = "IDLE_3",
+	RANGED = "RANGED",
+	MELEE = "MELEE",
 }
 
+# READY
+#---------------------------------------------------------------------------------------
 func _ready():
 	pass
+
+# UTILITY
+#---------------------------------------------------------------------------------------
+func calculate_melee_damage(is_attacker,is_target):
+	is_target.stat_health -= is_attacker.stat_melee_dmg
+	if is_target.stat_health <= 0: 
+			is_target.queue_free()
+			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
+
+func calculate_ranged_damage(is_attacker,is_target):
+	is_target.stat_health -= is_attacker.stat_ranged_dmg
+	if is_target.stat_health <= 0: 
+			is_target.queue_free()
+			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
 
 func animation_flip(is_flip_h:bool, is_flip_v:bool):
 	NODE_ANIMATED_SPRITE.flip_h = is_flip_h
@@ -73,6 +97,12 @@ func raycast_cast_to(node_name,cell_start,cell_finish):
 	node_name.cast_to = Vector2(cell_cast_to.x,cell_cast_to.y)
 	node_name.force_raycast_update()
 
+func get_animation(a,b):
+	randomize()
+	var animation = ANIMATIONS.keys()
+	animation = animation[rand_range(a,b)]
+	return animation
+
 func get_chance(percentage):
 	randomize()
 	if randi() % 100 <= percentage:  
@@ -82,3 +112,7 @@ func get_chance(percentage):
 
 func get_idle_frame():
 	yield(get_tree(),"idle_frame")
+
+func check_modifier(modifier_id):
+	var modifier = modifier_id
+	pass

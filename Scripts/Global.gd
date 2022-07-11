@@ -110,8 +110,8 @@ func game_state_manager(state):
 		NODE_PLAYER.turn_count = 0
 	elif GAME_STATE == GAME_STATE_LIST.STATE_MOB_TURN:
 		print("< MOB MOVEMENT STARTED >")
-		NODE_MAIN.level_queue_prepare()
-		NODE_MAIN.manager_mob()
+		LEVEL.level_queue_prepare()
+		LEVEL.manager_mob()
 	else:
 		pass
 	pass

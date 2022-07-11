@@ -13,7 +13,7 @@ script = ExtResource( 1 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 frames = ExtResource( 3 )
-animation = "IDLE"
+animation = "MELEE"
 frame = 1
 playing = true
 centered = false

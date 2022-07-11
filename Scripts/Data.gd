@@ -62,18 +62,21 @@ onready var ITEM_LIST = {
 	1: {
 		"Ammo": 100,
 		"Medkit": 50,
+		"Adrenalin": 10,
 		"Shotgun": 15,
 		"TacticalShotgun":5
 	},
 	2: {
 		"Ammo": 100,
 		"Medkit": 45,
+		"Adrenalin": 10,
 		"Shotgun": 10,
 		"TacticalShotgun":10
 	},
 	3: {
 		"Ammo": 100,
 		"Medkit": 35,
+		"Adrenalin": 10,
 		"Shotgun": 5,
 		"TacticalShotgun":15
 	},
@@ -83,15 +86,14 @@ onready var ITEM_LIST = {
 #---------------------------------------------------------------------------------------
 onready var OBJECT_LIST = {
 	1: {
-		"Locker": 80,
 		"Terminal": 15
 	},
 	2: {
-		"Locker": 80,
+#		"Locker": 80,
 		"Terminal": 15
 	},
 	3: {
-		"Locker": 80,
+#		"Locker": 80,
 		"Terminal": 15
 	},
 }

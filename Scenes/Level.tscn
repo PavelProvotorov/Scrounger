@@ -75,7 +75,7 @@
 2/shapes = [  ]
 2/z_index = 0
 
-[node name="Level_Empty" type="Node2D"]
+[node name="Level" type="Node2D"]
 script = ExtResource( 4 )
 
 [node name="Logic" type="TileMap" parent="."]
