@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/item_ammo.png-d3b3777140c739708047cb6d9e62e134.stex"
+path="res://.import/item_ammo_bullet.png-277afa260b70236ad8193d315b710c0d.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/item_ammo.png"
-dest_files=[ "res://.import/item_ammo.png-d3b3777140c739708047cb6d9e62e134.stex" ]
+source_file="res://Assets/item_ammo_bullet.png"
+dest_files=[ "res://.import/item_ammo_bullet.png-277afa260b70236ad8193d315b710c0d.stex" ]
 
 [params]
 

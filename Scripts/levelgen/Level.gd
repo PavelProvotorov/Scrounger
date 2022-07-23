@@ -38,9 +38,10 @@ func _ready():
 
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
 	Global.LEVEL_LAYER_LOGIC.astar_build()
-	Global.LEVEL_LAYER_LOGIC.level_item_spawn("Shotgun",(Global.NODE_PLAYER.position/8))
+	Global.LEVEL_LAYER_LOGIC.level_item_spawn("Pistol",(Global.NODE_PLAYER.position/8))
+#	Global.LEVEL_LAYER_LOGIC.level_item_spawn("Shotgun",(Global.NODE_PLAYER.position/8))
 #	Global.LEVEL_LAYER_LOGIC.level_item_spawn("Adrenalin",(Global.NODE_PLAYER.position/8))
-	Global.LEVEL_LAYER_LOGIC.level_modifier_spawn("BuffSpeed",Global.NODE_PLAYER)
+#	Global.LEVEL_LAYER_LOGIC.level_modifier_spawn("BuffSpeed",Global.NODE_PLAYER)
 	print(Global.NODE_PLAYER.modifier_list)
 	pass
 
@@ -208,7 +209,7 @@ func mob_action_shoot(cellA:Vector2,cellB:Vector2):
 	if cellA - cellB == Vector2(grid_size,0): moving_entity.animation_flip(true,false)
 
 	moving_entity.z_index += 1
-	moving_entity.calculate_ranged_damage(moving_entity,target_entity)
+	moving_entity.calculate_ranged_damage(moving_entity,target_entity,moving_entity.stat_ranged_dmg,null)
 	moving_entity.action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
 	
 	#MOB ATTACK | FINISH

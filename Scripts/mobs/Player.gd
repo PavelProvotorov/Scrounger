@@ -42,21 +42,26 @@ signal on_action_finished
 #---------------------------------------------------------------------------------------
 var sound_on_move = Sound.sfx_move
 var sound_on_hit = Sound.sfx_hit_0
-var sound_on_ranged = Sound.sfx_shoot
 var sound_on_melee = Sound.sfx_punch_0
 var sound_on_death
 
 # STATS
 #---------------------------------------------------------------------------------------
 var stat_visibility:int = 2
-var stat_ranged_dmg:int = 0
 var stat_melee_dmg:int = 2
 var stat_ambition:int = 3
 
 var stat_shield:int = 0
-var stat_health:int = 10
 var stat_speed:int = 1
-var stat_ammo:int = 0
+
+const stat_health_max:int = 99
+var stat_health:int = 10
+
+const stat_ammo_bullet_max:int = 99
+var stat_ammo_bullet:int = 10
+
+const stat_ammo_shell_max:int = 99
+var stat_ammo_shell:int = 6
 
 # READY
 #---------------------------------------------------------------------------------------
@@ -86,12 +91,12 @@ func _unhandled_input(key):
 		if key.is_action_pressed(input):
 			if Global.GAME_STATE == Global.GAME_STATE_LIST.STATE_PLAYER_TURN:
 				if PLAYER_ACTION_INPUT == false && PLAYER_ACTION_SHOOT == false && PLAYER_ACTION_TEXT == false:
+					if input == INPUT_LIST.UI_SHOOT && Data.EQUIPMENT[0].empty() == false: check_ammo(Global.GUI_WEAPON.get_child(1).ammo_type)
 					if input == INPUT_LIST.UI_UP:    action_collision_check(Vector2.UP)
 					if input == INPUT_LIST.UI_DOWN:  action_collision_check(Vector2.DOWN)
 					if input == INPUT_LIST.UI_LEFT:  action_collision_check(Vector2.LEFT)
 					if input == INPUT_LIST.UI_RIGHT: action_collision_check(Vector2.RIGHT)
 					if input == INPUT_LIST.UI_PICK:  action_interact(Vector2(0,0))
-					if input == INPUT_LIST.UI_SHOOT: check_ammo()
 					if input == INPUT_LIST.UI_SKIP:  check_turn()
 					if input == INPUT_LIST.UI_1: action_use(1,Global.GUI_SLOT_1)
 					if input == INPUT_LIST.UI_2: action_use(2,Global.GUI_SLOT_2)
@@ -199,9 +204,8 @@ func action_shoot(direction):
 					if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
 					Global.LEVEL_LAYER_LOGIC.level_projectile_spawn("Bullet",NODE_POSITION_2D,direction,false)
 					action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
-					NODE_MAIN.calculate_ranged_damage(self,collider)
-					NODE_MAIN.stat_ammo -= 1
-					Sound.play_sound(self,sound_on_ranged)
+					NODE_MAIN.calculate_ranged_damage(self,collider,Global.GUI_WEAPON.get_child(1).stat_ranged_damage,Global.GUI_WEAPON.get_child(1).ammo_type)
+					Sound.play_sound(self,Global.GUI_WEAPON.get_child(1).sound_on_ranged)
 					yield(self.NODE_TWEEN,"tween_all_completed")
 					yield(self,"on_action_finished")
 					done = true
@@ -300,14 +304,13 @@ func action_finish():
 	yield(get_tree(),"idle_frame")
 	pass
 
-func check_ammo():
-	if stat_ammo >= 1 && PLAYER_ACTION_SHOOT == false:
+func check_ammo(ammo_type):
+	var ammo = get(ammo_type)
+	if ammo >= 1 && PLAYER_ACTION_SHOOT == false:
 		NODE_ANIMATED_SPRITE.set_animation(ANIMATIONS.RANGED)
 		PLAYER_ACTION_SHOOT = true
-	elif stat_ammo == 0 && PLAYER_ACTION_SHOOT == false:
+	elif ammo == 0 && PLAYER_ACTION_SHOOT == false:
 		Sound.play_sound(self,Sound.sfx_noammo)
-	else:
-		pass
 
 func check_turn():
 	turn_count += 1
@@ -317,7 +320,9 @@ func check_turn():
 	if turn_count == stat_speed: Global.game_state_manager(Global.GAME_STATE_LIST.STATE_MOB_TURN)
 
 func ui_update():
-	Global.UI_AMMO.set_text(self.stat_ammo as String)
+	if Data.EQUIPMENT[0].empty() == false:
+		var ammo = get(Global.GUI_WEAPON.get_child(1).ammo_type)
+		Global.UI_AMMO.set_text(ammo as String)
 	Global.UI_HEALTH.set_text(self.stat_health as String)
 	Global.UI_SHIELD.set_text(self.stat_shield as String)
 	Global.UI_TURN.set_text((self.stat_speed - self.turn_count)as String)
@@ -335,8 +340,12 @@ func calculate_melee_damage(is_attacker,is_target):
 		Sound.play_sound(is_target,is_target.sound_on_hit)
 	yield(self.get_idle_frame(),"completed")
 
-func calculate_ranged_damage(is_attacker,is_target):
-	is_target.stat_health -= is_attacker.stat_ranged_dmg
+func calculate_ranged_damage(is_attacker,is_target,ranged_damage,ammo_type:String):
+	var ammo = get(ammo_type) 
+	ammo -= 1
+	set(ammo_type,ammo)
+	Global.UI_AMMO.set_text(ammo as String)
+	is_target.stat_health -= ranged_damage
 	if is_target.stat_health <= 0:
 		is_target.NODE_ANIMATED_SPRITE.hide()
 		Sound.call_deferred("play_sound_deferred",is_target,is_target.sound_on_death)

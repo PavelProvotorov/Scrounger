@@ -37,8 +37,8 @@ func calculate_melee_damage(is_attacker,is_target):
 			is_target.queue_free()
 			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)
 
-func calculate_ranged_damage(is_attacker,is_target):
-	is_target.stat_health -= is_attacker.stat_ranged_dmg
+func calculate_ranged_damage(is_attacker,is_target,ranged_damage,ammo_type):
+	is_target.stat_health -= ranged_damage
 	if is_target.stat_health <= 0: 
 			is_target.queue_free()
 			Global.LEVEL_LAYER_LOGIC.remove_child(is_target)

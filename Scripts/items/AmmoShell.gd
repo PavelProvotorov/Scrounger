@@ -7,7 +7,7 @@ onready var NODE_SOUND = $Sound
 func _ready():
 	randomize()
 	NODE_SOUND.stream = Sound.sfx_pickup
-	count = round(rand_range(2,6))
+	count = round(rand_range(2,4))
 	pass
 
 # ACTIONS
@@ -18,7 +18,7 @@ func on_action_pickup():
 
 func on_action_use():
 	if Data.EQUIPMENT[0].empty() == false:
-		Global.NODE_PLAYER.stat_ammo += count
+		Global.NODE_PLAYER.stat_ammo_shell += count
 		Sound.play_sound(self,Sound.sfx_pickup)
 	
 		# REMOVE FROM INVENTORY

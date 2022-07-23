@@ -60,21 +60,24 @@ onready var MOB_LIST = {
 #---------------------------------------------------------------------------------------
 onready var ITEM_LIST = {
 	1: {
-		"Ammo": 100,
+		"AmmoBullet": 100,
+		"AmmoShell": 80,
 		"Medkit": 50,
 		"Adrenalin": 10,
 		"Shotgun": 15,
 		"TacticalShotgun":5
 	},
 	2: {
-		"Ammo": 100,
+		"AmmoBullet": 100,
+		"AmmoShell": 80,
 		"Medkit": 45,
 		"Adrenalin": 10,
 		"Shotgun": 10,
 		"TacticalShotgun":10
 	},
 	3: {
-		"Ammo": 100,
+		"AmmoBullet": 100,
+		"AmmoShell": 80,
 		"Medkit": 35,
 		"Adrenalin": 10,
 		"Shotgun": 5,

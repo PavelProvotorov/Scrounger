@@ -1,8 +1,14 @@
 extends StaticBody2D
 class_name Item2D
 
-var stat_ranged_dmg:int
-var stat_ammo:int
+const AMMO_TYPE = {
+	BULLET = "stat_ammo_bullet",
+	SHELL  = "stat_ammo_shell"
+}
+
+var ammo_type
+var stat_ranged_damage:int
+var sound_on_ranged
 var inventory_slot_texture
 var inventory_slot_id
 var inventory_slot
@@ -19,8 +25,6 @@ func item_pickup_weapon():
 		Global.GUI_WEAPON.add_child(self)
 		Global.GUI_WEAPON_ICON.texture = $Sprite.texture
 		Sound.play_sound(self,Sound.sfx_pickup)
-		Global.NODE_PLAYER.stat_ammo = stat_ammo
-		stat_ammo = 0
 	elif slot.empty() == false:
 		var current_weapon = Global.GUI_WEAPON.get_child(1)
 		current_weapon.position = Global.NODE_PLAYER.position
@@ -32,10 +36,6 @@ func item_pickup_weapon():
 		Global.GUI_WEAPON.add_child(self)
 		Global.GUI_WEAPON_ICON.texture = $Sprite.texture
 		Sound.play_sound(self,Sound.sfx_pickup)
-		current_weapon.stat_ammo = Global.NODE_PLAYER.stat_ammo
-		Global.NODE_PLAYER.stat_ammo = self.stat_ammo
-		self.stat_ammo = Global.NODE_PLAYER.stat_ammo
-	Global.NODE_PLAYER.stat_ranged_dmg = self.stat_ranged_dmg
 	pass
 
 func item_pickup_consumable():
