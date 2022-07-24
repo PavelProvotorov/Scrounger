@@ -38,8 +38,8 @@ func _ready():
 
 	Global.LEVEL_LAYER_LOGIC.bsp_generator()
 	Global.LEVEL_LAYER_LOGIC.astar_build()
-	Global.LEVEL_LAYER_LOGIC.level_item_spawn("Pistol",(Global.NODE_PLAYER.position/8))
-#	Global.LEVEL_LAYER_LOGIC.level_item_spawn("Shotgun",(Global.NODE_PLAYER.position/8))
+#	Global.LEVEL_LAYER_LOGIC.level_item_spawn("Pistol",(Global.NODE_PLAYER.position/8))
+	Global.LEVEL_LAYER_LOGIC.level_item_spawn("Shotgun",(Global.NODE_PLAYER.position/8))
 #	Global.LEVEL_LAYER_LOGIC.level_item_spawn("Adrenalin",(Global.NODE_PLAYER.position/8))
 #	Global.LEVEL_LAYER_LOGIC.level_modifier_spawn("BuffSpeed",Global.NODE_PLAYER)
 	print(Global.NODE_PLAYER.modifier_list)
@@ -67,16 +67,16 @@ func manager_mob_actions():
 	Global.LEVEL_LAYER_LOGIC.astar_prepare()
 	Global.LEVEL_LAYER_LOGIC.astar_remove_mobs(moving_entity)
 	Global.LEVEL_LAYER_LOGIC.astar_build()
-
+	
 	# ENGAGED MELEE CLASS
 	if moving_entity.AI_state == Global.AI_STATE_LIST.STATE_ENGAGE && moving_entity.AI_class == Global.AI_CLASS_LIST.CLASS_MELEE:
 		for speed in moving_entity.stat_speed:
 			moving_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(moving_entity.get_global_position())
 			target_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(target_entity.get_global_position())
 			moving_entity_path = Global.LEVEL_LAYER_LOGIC.astar_get_path(moving_entity_position,target_entity_position)
-#			print(moving_entity_path)
-#			print(moving_entity_path.size())
-			if moving_entity_path.size() > 0:
+			if moving_entity_path.size() == 0:
+				yield(self.get_idle_frame(),"completed")
+			elif moving_entity_path.size() > 0:
 				if moving_entity_path[1] == target_entity_position:
 					mob_action_attack(moving_entity_path[0],moving_entity_path[1])
 					Sound.play_sound(moving_entity,moving_entity.sound_on_melee)
@@ -98,16 +98,16 @@ func manager_mob_actions():
 						moving_entity.on_action_move()
 						yield(moving_entity,"on_action_finished")
 						yield(self.get_idle_frame(),"completed")
-			elif moving_entity_path.size() == 0:
-				yield(self.get_idle_frame(),"completed")
 
 	# ENGAGED RANGED CLASS
-	if moving_entity.AI_state == Global.AI_STATE_LIST.STATE_ENGAGE && moving_entity.AI_class == Global.AI_CLASS_LIST.CLASS_RANGED:
+	elif moving_entity.AI_state == Global.AI_STATE_LIST.STATE_ENGAGE && moving_entity.AI_class == Global.AI_CLASS_LIST.CLASS_RANGED:
 		for speed in moving_entity.stat_speed:
 			moving_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(moving_entity.get_global_position())
 			target_entity_position = Global.LEVEL_LAYER_LOGIC.world_to_map(target_entity.get_global_position())
 			moving_entity_path = Global.LEVEL_LAYER_LOGIC.astar_get_path(moving_entity_position,target_entity_position)
-			if moving_entity_path.size() != 0 && moving_entity_path.size() != 3:
+			if moving_entity_path.size() == 0:
+				yield(self.get_idle_frame(),"completed")
+			elif moving_entity_path.size() != 0 && moving_entity_path.size() != 3:
 				if moving_entity_path[1] == target_entity_position:
 					mob_action_attack(moving_entity_path[0],moving_entity_path[1])
 					Sound.play_sound(moving_entity,moving_entity.sound_on_melee)
@@ -139,8 +139,6 @@ func manager_mob_actions():
 						Sound.play_sound(target_entity,target_entity.sound_on_hit)
 						yield(self,"on_mob_action_finished")
 						moving_entity.on_action_attack()
-				yield(self.get_idle_frame(),"completed")
-			elif moving_entity_path.size() == 0:
 				yield(self.get_idle_frame(),"completed")
 
 	# IDLE STATE

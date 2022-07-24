@@ -1,16 +1,9 @@
 extends Mob2D
 
-#onready var NODE_ANIMATED_SPRITE = $AnimatedSprite
-#onready var NODE_COLLISION_2D = $CollisionShape2D
-onready var NODE_CAMERA_2D = $Camera2D
-#onready var NODE_POSITION_2D = $Position2D
 onready var NODE_RAYCAST_MOB = $RayCastMob
 onready var NODE_RAYCAST_FOG = $RayCastFog
-#onready var NODE_RAYCAST_COLLIDE = $RayCastCollide
 onready var NODE_SOUND_DEATH = $SoundDeath
-#onready var NODE_SOUND = $Sound
-#onready var NODE_TWEEN = $Tween
-#onready var NODE_MAIN = self
+onready var NODE_CAMERA_2D = $Camera2D
 
 const INPUT_LIST = {
 	UI_UP    = "ui_up",
@@ -43,7 +36,7 @@ signal on_action_finished
 var sound_on_move = Sound.sfx_move
 var sound_on_hit = Sound.sfx_hit_0
 var sound_on_melee = Sound.sfx_punch_0
-var sound_on_death
+var sound_on_death = Sound.sfx_death_0
 
 # STATS
 #---------------------------------------------------------------------------------------
@@ -61,7 +54,10 @@ const stat_ammo_bullet_max:int = 99
 var stat_ammo_bullet:int = 10
 
 const stat_ammo_shell_max:int = 99
-var stat_ammo_shell:int = 6
+var stat_ammo_shell:int = 30
+
+const stat_ammo_plasma_max:int = 99
+var stat_ammo_plasma:int = 0
 
 # READY
 #---------------------------------------------------------------------------------------
@@ -202,7 +198,7 @@ func action_shoot(direction):
 					#ANIMATION FLIP CHECK
 					if cellA - cellB == Vector2(-grid_size,0): animation_flip(false,false)
 					if cellA - cellB == Vector2(grid_size,0): animation_flip(true,false)
-					Global.LEVEL_LAYER_LOGIC.level_projectile_spawn("Bullet",NODE_POSITION_2D,direction,false)
+					Global.LEVEL_LAYER_LOGIC.level_projectile_spawn(Global.GUI_WEAPON.get_child(1).projectile_type,NODE_POSITION_2D,direction,false)
 					action_shoot_tween(cellA,get_negative_vector(cellA,cellB))
 					NODE_MAIN.calculate_ranged_damage(self,collider,Global.GUI_WEAPON.get_child(1).stat_ranged_damage,Global.GUI_WEAPON.get_child(1).ammo_type)
 					Sound.play_sound(self,Global.GUI_WEAPON.get_child(1).sound_on_ranged)
@@ -314,7 +310,8 @@ func check_ammo(ammo_type):
 
 func check_turn():
 	turn_count += 1
-	for modifier in modifier_list:
+	var check_modifier_list = modifier_list
+	for modifier in check_modifier_list:
 		modifier.on_action_tick()
 	if turn_count != stat_speed: pass
 	if turn_count == stat_speed: Global.game_state_manager(Global.GAME_STATE_LIST.STATE_MOB_TURN)

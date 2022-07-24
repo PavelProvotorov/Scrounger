@@ -37,6 +37,7 @@ cast_to = Vector2( 0, 0 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2( 4, 4 )
+current = true
 zoom = Vector2( 0.5, 0.5 )
 
 [node name="Position2D" type="Position2D" parent="."]

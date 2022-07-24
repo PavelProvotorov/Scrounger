@@ -62,6 +62,7 @@ onready var ITEM_LIST = {
 	1: {
 		"AmmoBullet": 100,
 		"AmmoShell": 80,
+		"AmmoPlasma": 20,
 		"Medkit": 50,
 		"Adrenalin": 10,
 		"Shotgun": 15,
@@ -70,6 +71,7 @@ onready var ITEM_LIST = {
 	2: {
 		"AmmoBullet": 100,
 		"AmmoShell": 80,
+		"AmmoPlasma": 20,
 		"Medkit": 45,
 		"Adrenalin": 10,
 		"Shotgun": 10,
@@ -78,6 +80,7 @@ onready var ITEM_LIST = {
 	3: {
 		"AmmoBullet": 100,
 		"AmmoShell": 80,
+		"AmmoPlasma": 20,
 		"Medkit": 35,
 		"Adrenalin": 10,
 		"Shotgun": 5,

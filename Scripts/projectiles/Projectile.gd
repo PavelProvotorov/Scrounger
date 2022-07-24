@@ -8,6 +8,6 @@ func _physics_process(delta):
 	position += direction * speed * delta
 	pass
 
-func _on_Bullet_body_entered(body):
+func _on_Projectile_body_entered(body):
 	if body.is_in_group(Global.GROUPS.PLAYER) == hit_player:
 		self.queue_free()

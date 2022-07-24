@@ -6,6 +6,7 @@ onready var NODE_SOUND = $Sound
 #---------------------------------------------------------------------------------------
 func _ready():
 	sound_on_ranged = Sound.sfx_shoot_0
+	projectile_type = PROJECTILE_TYPE.BULLET
 	ammo_type = AMMO_TYPE.BULLET
 	stat_ranged_damage = 2
 	pass

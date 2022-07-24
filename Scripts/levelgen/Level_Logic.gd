@@ -145,10 +145,10 @@ func fog_update():
 			
 	#MOB SPECIFIC CHECK
 	cell_array = []
-	rect_start = Vector2(player_position.x - (fog_range+1), player_position.y - (fog_range+1))
-	rect_close = Vector2(player_position.x + (fog_range+1), player_position.y + (fog_range+1))
-	rect_width = ((rect_close.x - rect_start.x)+1)
-	rect_height = ((rect_close.y - rect_start.y)+1)
+	rect_start = Vector2(player_position.x - (fog_range+2), player_position.y - (fog_range+2))
+	rect_close = Vector2(player_position.x + (fog_range+2), player_position.y + (fog_range+2))
+	rect_width = ((rect_close.x - rect_start.x)+2)
+	rect_height = ((rect_close.y - rect_start.y)+2)
 	for x in range(0, rect_width):
 		for y in range(0, rect_height):
 			var cell = Vector2((rect_start.x + x),(rect_start.y + y))

@@ -7,15 +7,15 @@ onready var NODE_SOUND = $Sound
 func _ready():
 	randomize()
 	NODE_SOUND.stream = Sound.sfx_pickup
-	count = round(rand_range(6,8))
+	count = round(rand_range(1,2))
 	pass
 
 # ACTIONS
 #---------------------------------------------------------------------------------------
 func on_action_pickup():
-	Global.NODE_PLAYER.stat_ammo_bullet += count
-	if Global.NODE_PLAYER.stat_ammo_bullet >= Global.NODE_PLAYER.stat_ammo_bullet_max: Global.NODE_PLAYER.stat_ammo_bullet = Global.NODE_PLAYER.stat_ammo_bullet_max
-	if Global.NODE_PLAYER.stat_ammo_bullet <= Global.NODE_PLAYER.stat_ammo_bullet_max: pass
+	Global.NODE_PLAYER.stat_ammo_plasma += count
+	if Global.NODE_PLAYER.stat_ammo_plasma >= Global.NODE_PLAYER.stat_ammo_plasma_max: Global.NODE_PLAYER.stat_ammo_plasma = Global.NODE_PLAYER.stat_ammo_plasma_max
+	if Global.NODE_PLAYER.stat_ammo_plasma <= Global.NODE_PLAYER.stat_ammo_plasma_max: pass
 	Sound.play_sound(Global.NODE_PLAYER,Sound.sfx_pickup)
 	item_remove()
 

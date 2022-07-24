@@ -674,3 +674,18 @@
 #	NODE_TWEEN.start()
 #	yield(NODE_TWEEN,"tween_completed")
 #	NODE_TWEEN.emit_signal("tween_all_completed")
+
+#func on_action_pickup():
+#	item_pickup_consumable()
+#	yield(self.get_idle_frame(),"completed")
+#
+#func on_action_use():
+#	if Data.EQUIPMENT[0].empty() == false:
+#		Global.NODE_PLAYER.stat_ammo_bullet += count
+#		Sound.play_sound(self,Sound.sfx_pickup)
+#
+#		# REMOVE FROM INVENTORY
+#		item_inventory_remove()
+#
+#func on_action_tick():
+#	pass

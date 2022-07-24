@@ -22,6 +22,7 @@ signal on_sound_finished
 func play_sound(entity,sound_name):
 	entity.NODE_SOUND.stream = sound_name
 	entity.NODE_SOUND.play()
+	emit_signal("on_sound_finished")
 	pass
 
 func play_sound_deferred(entity,sound_name):

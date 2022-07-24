@@ -662,6 +662,8 @@ func tilemap_texture_set_fixed(layer,tile_base_id:int,tile_position:Vector2,id:i
 	var tile = tile_array[id]
 	layer.set_cell(tile_position.x,tile_position.y,tile_base_id,false,false,false,tile)
 
+# SPAWN 
+#---------------------------------------------------------------------------------------
 func level_mob_spawn_tween(mob_name,mob_position_a:Vector2,mob_position_b:Vector2):
 	var mob_data = load("res://Mobs/%s.tscn" %mob_name)
 	var mob_instance = mob_data.instance()
@@ -672,8 +674,6 @@ func level_mob_spawn_tween(mob_name,mob_position_a:Vector2,mob_position_b:Vector
 	mob_instance.action_move_tween(mob_position_a,mob_position_b)
 	return mob_instance
 
-# SPAWN 
-#---------------------------------------------------------------------------------------
 func level_projectile_spawn(projectile_name,projectile_position,projectile_direction,projectile_hit_player):
 	var projectile_data = load("res://Projectiles/%s.tscn" %projectile_name)
 	var projectile_instance = projectile_data.instance()

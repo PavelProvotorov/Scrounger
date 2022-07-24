@@ -3,10 +3,18 @@ class_name Item2D
 
 const AMMO_TYPE = {
 	BULLET = "stat_ammo_bullet",
-	SHELL  = "stat_ammo_shell"
+	SHELL  = "stat_ammo_shell",
+	PLASMA = "stat_ammo_plasma"
+}
+
+const PROJECTILE_TYPE = {
+	BULLET = "Bullet",
+	SHELL = "Shell",
+	PLASMA = "Plasma"
 }
 
 var ammo_type
+var projectile_type
 var stat_ranged_damage:int
 var sound_on_ranged
 var inventory_slot_texture
@@ -57,6 +65,11 @@ func item_inventory_remove():
 	inventory_slot.clear()
 	inventory_slot_texture.set_texture(null)
 	inventory_slot_id.remove_child(self)
+	self.queue_free()
+	pass
+
+func item_remove():
+	Global.LEVEL_LAYER_LOGIC.remove_child(self)
 	self.queue_free()
 	pass
 
